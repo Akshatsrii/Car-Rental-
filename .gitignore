@@ -1,0 +1,9 @@
+PORT=3000
+MONGO_URI=mongodb://127.0.0.1:27017/car_rental_db
+JWT_SECRET=akshat@2006
+
+IMAGEKIT_PUBLIC_KEY='public_R76aHoHNUu/ZFF1QJ4EaLU3TKmo='
+IMAGEKIT_PRIVATE_KEY='private_VTmjjE7hsddxCf5/OSLQhC76w8c='
+IMAGE_URL_ENDPOINT='https://ik.imagekit.io/4hhtqt4ei'
+VITE_CURRENCY=$
+VITE_BASE_URL=http://localhost:3000
