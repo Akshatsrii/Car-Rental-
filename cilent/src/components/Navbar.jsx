@@ -7,16 +7,18 @@ import toast from "react-hot-toast";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const dropdownRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user, token, setToken, setShowLogin } = useAppContext();
+  const { user, token, setToken, setShowLogin, axios, fetchUser } = useAppContext();
 
   const menuLinks = [
     { name: "Home", path: "/" },
-    { name: "Cars", path: "/cars" },
+    { name: "Book Ride", path: "/cars" },
     { name: "My Bookings", path: "/mybookings" },
   ];
 
@@ -31,14 +33,43 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔹 Handle List Cars click
-  const handleListCars = () => {
+  // 🔹 Handle Become Driver click
+  const handleBecomeDriver = () => {
     if (!token) {
-      toast.error("Please login first to list your cars");
+      toast.error("Please login first");
       setShowLogin(true);
       return;
     }
-    navigate("/owner");
+    if (user && user.role === "customer") {
+      setShowUpgradeModal(true);
+      return;
+    }
+    if (user && user.role === "driver") {
+      navigate("/driver");
+    } else {
+      navigate("/owner");
+    }
+  };
+
+  // 🔹 Handle Driver Upgrade
+  const handleUpgradeToOwner = async () => {
+    try {
+      setUpgrading(true);
+      const { data } = await axios.post("/api/owner/change-role", { role: "driver" });
+      if (data.success) {
+        toast.success("Congratulations! You are now a Driver partner.");
+        await fetchUser();
+        setShowUpgradeModal(false);
+        navigate("/driver");
+      } else {
+        toast.error(data.message || "Failed to upgrade account");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred during account upgrade");
+    } finally {
+      setUpgrading(false);
+    }
   };
 
   // 🔹 Logout
@@ -96,12 +127,12 @@ const Navbar = () => {
             </svg>
           </div>
 
-          {/* List Cars Button */}
+          {/* Become a Driver Button */}
           <button
-            onClick={handleListCars}
+            onClick={handleBecomeDriver}
             className="text-gray-700 hover:text-primary font-semibold transition-all duration-200 relative group"
           >
-            List Cars
+            Become a Driver
             <span className="absolute -bottom-1 left-0 h-0.5 bg-primary w-0 group-hover:w-full transition-all duration-300"></span>
           </button>
 
@@ -150,7 +181,7 @@ const Navbar = () => {
                   {/* Menu Items */}
                   <div className="py-2">
                     <Link
-                      to="/owner"
+                      to={user?.role === "driver" ? "/driver" : (user?.role === "admin" || user?.role === "super_admin") ? "/owner" : "/"}
                       onClick={() => setShowUserMenu(false)}
                       className="flex items-center gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 text-gray-700 group"
                     >
@@ -169,7 +200,9 @@ const Navbar = () => {
                           />
                         </svg>
                       </div>
-                      <span className="font-semibold">My Listed Cars</span>
+                      <span className="font-semibold">
+                        {user?.role === "driver" ? "Driver Dashboard" : (user?.role === "admin" || user?.role === "super_admin") ? "Admin Panel" : "My Dashboard"}
+                      </span>
                     </Link>
 
                     <Link
@@ -281,12 +314,12 @@ const Navbar = () => {
 
               <button
                 onClick={() => {
-                  handleListCars();
+                  handleBecomeDriver();
                   setOpen(false);
                 }}
                 className="text-left font-semibold text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-all duration-200"
               >
-                List Cars
+                Become a Driver
               </button>
 
               <div className="border-t border-gray-200 my-4"></div>
@@ -299,14 +332,16 @@ const Navbar = () => {
                   </div>
 
                   <Link
-                    to="/owner"
+                    to={user?.role === "driver" ? "/driver" : (user?.role === "admin" || user?.role === "super_admin") ? "/owner" : "/"}
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-all duration-200"
                   >
                     <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                     </svg>
-                    <span className="font-semibold">My Listed Cars</span>
+                    <span className="font-semibold">
+                      {user?.role === "driver" ? "Driver Dashboard" : (user?.role === "admin" || user?.role === "super_admin") ? "Admin Panel" : "My Dashboard"}
+                    </span>
                   </Link>
 
                   <button
@@ -333,6 +368,47 @@ const Navbar = () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* UPGRADE TO HOST MODAL */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-gray-100 relative animate-scaleUp">
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              ✕
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-50 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Become a Driver</h3>
+              <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                Join our network of driver partners to accept ride requests and start earning extra income on your own schedule!
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  disabled={upgrading}
+                  className="flex-1 px-4 py-3 border border-gray-300 hover:bg-gray-50 rounded-xl font-semibold transition text-gray-700 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpgradeToOwner}
+                  disabled={upgrading}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {upgrading ? "Upgrading..." : "Upgrade Now"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

@@ -23,6 +23,12 @@ export const AppProvider = ({ children }) => {
       }
     } catch (error) {
       console.log("fetchUser error:", error.message);
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        setToken(null);
+        setUser(null);
+        delete axios.defaults.headers.common["Authorization"];
+      }
     }
   };
 

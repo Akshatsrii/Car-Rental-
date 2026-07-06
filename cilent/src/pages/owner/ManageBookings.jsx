@@ -1,27 +1,70 @@
 import React, { useEffect, useState } from "react";
-import { dummyMyBookingsData } from "../../assets/assets";
 import Title from "../../components/owner/Title";
+import { useAppContext } from "../../components/context/AppContext";
+import toast from "react-hot-toast";
 
 const ManageBookings = () => {
+  const { axios } = useAppContext();
   const currency = import.meta.env.VITE_CURRENCY || "$";
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const fetchOwnerBookings = async () => {
-    setBookings(dummyMyBookingsData);
+    try {
+      setLoading(true);
+      const { data } = await axios.get("/api/booking/owner");
+      if (data.success) {
+        const mappedBookings = (data.bookings || []).map((booking) => ({
+          ...booking,
+          car: {
+            ...booking.car,
+            brand: booking.car?.name || "Unknown",
+            model: booking.car?.model || "Car",
+            image: booking.car?.images && booking.car.images.length > 0 
+              ? `${import.meta.env.VITE_BASE_URL}/${booking.car.images[0]}` 
+              : "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400"
+          }
+        }));
+        setBookings(mappedBookings);
+      } else {
+        toast.error(data.message || "Failed to load bookings");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchOwnerBookings();
   }, []);
 
-  const handleStatusChange = (index, newStatus) => {
-    setBookings(prev =>
-      prev.map((booking, i) =>
-        i === index ? { ...booking, status: newStatus } : booking
-      )
-    );
+  const handleStatusChange = async (index, newStatus) => {
+    const booking = bookings[index];
+    try {
+      const { data } = await axios.post("/api/booking/change-status", {
+        bookingId: booking._id,
+        status: newStatus,
+      });
+
+      if (data.success) {
+        toast.success(`Booking status updated to ${newStatus}`);
+        setBookings((prev) =>
+          prev.map((b, i) =>
+            i === index ? { ...b, status: newStatus } : b
+          )
+        );
+      } else {
+        toast.error(data.message || "Failed to update booking status");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update booking status");
+    }
   };
 
   const handleCancelBooking = (booking, index) => {
@@ -29,16 +72,30 @@ const ManageBookings = () => {
     setShowCancelModal(true);
   };
 
-  const confirmCancel = () => {
-    setBookings(prev =>
-      prev.map((booking, i) =>
-        i === selectedBooking.index
-          ? { ...booking, status: "cancelled" }
-          : booking
-      )
-    );
-    setShowCancelModal(false);
-    setSelectedBooking(null);
+  const confirmCancel = async () => {
+    try {
+      const { data } = await axios.post("/api/booking/change-status", {
+        bookingId: selectedBooking._id,
+        status: "cancelled",
+      });
+
+      if (data.success) {
+        toast.success("Booking cancelled successfully");
+        setBookings((prev) =>
+          prev.map((b, i) =>
+            i === selectedBooking.index ? { ...b, status: "cancelled" } : b
+          )
+        );
+      } else {
+        toast.error(data.message || "Failed to cancel booking");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to cancel booking");
+    } finally {
+      setShowCancelModal(false);
+      setSelectedBooking(null);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -124,7 +181,14 @@ const ManageBookings = () => {
 
               {/* TABLE BODY */}
               <tbody>
-                {bookings.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-gray-500">
+                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                      Loading bookings...
+                    </td>
+                  </tr>
+                ) : bookings.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="p-8 text-center text-gray-500">
                       No bookings yet. Bookings will appear here once customers

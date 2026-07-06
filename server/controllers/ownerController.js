@@ -1,25 +1,33 @@
 import Car from "../models/Car.js";
 import Booking from "../models/Booking.js";
-import fs from "fs";
+import User from "../models/User.js";
+import Driver from "../models/Driver.js";
 
-// ================= CHANGE ROLE TO OWNER =================
+// ================= CHANGE ROLE =================
 export const changeRoleToOwner = async (req, res) => {
   try {
     const user = req.user;
-
-    if (user.role === "owner") {
-      return res.json({
-        success: false,
-        message: "User is already an owner",
-      });
-    }
-
-    user.role = "owner";
+    const { role } = req.body; // allow changing to admin / driver / customer
+    
+    user.role = role || "owner";
     await user.save();
+
+    if (user.role === "driver") {
+      const driverExists = await Driver.findOne({ user: user._id });
+      if (!driverExists) {
+        await Driver.create({
+          user: user._id,
+          vehicleNumber: "MH-12-AB-" + Math.floor(1000 + Math.random() * 9000),
+          vehicleModel: "Maruti Suzuki Swift",
+          vehicleType: "Sedan",
+          status: "available"
+        });
+      }
+    }
 
     res.json({
       success: true,
-      message: "Role changed to owner",
+      message: `Role changed successfully to ${user.role}`,
     });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -29,8 +37,7 @@ export const changeRoleToOwner = async (req, res) => {
 // ================= GET OWNER CARS =================
 export const getOwnerCars = async (req, res) => {
   try {
-    const cars = await Car.find({ owner: req.user._id });
-
+    const cars = await Car.find();
     res.json({
       success: true,
       cars,
@@ -44,14 +51,14 @@ export const getOwnerCars = async (req, res) => {
 export const toggleCarAvailability = async (req, res) => {
   try {
     const { carId } = req.body;
-
     const car = await Car.findById(carId);
 
-    if (!car || car.owner.toString() !== req.user._id.toString()) {
-      return res.json({ success: false, message: "Unauthorized" });
+    if (!car) {
+      return res.json({ success: false, message: "Car not found" });
     }
 
     car.isAvailable = !car.isAvailable;
+    car.availability = car.isAvailable ? "Available" : "Maintenance";
     await car.save();
 
     res.json({ success: true, car });
@@ -64,11 +71,10 @@ export const toggleCarAvailability = async (req, res) => {
 export const deleteCar = async (req, res) => {
   try {
     const { carId } = req.body;
-
     const car = await Car.findById(carId);
 
-    if (!car || car.owner.toString() !== req.user._id.toString()) {
-      return res.json({ success: false, message: "Unauthorized" });
+    if (!car) {
+      return res.json({ success: false, message: "Car not found" });
     }
 
     await car.deleteOne();
@@ -82,41 +88,59 @@ export const deleteCar = async (req, res) => {
   }
 };
 
+// ================= GET OWNER / ADMIN DASHBOARD STATS =================
 export const getOwnerDashboard = async (req, res) => {
   try {
-    const ownerId = req.user._id;
+    const totalCars = await Car.countDocuments();
+    const customersCount = await User.countDocuments({ role: "customer" });
+    const driversCount = await User.countDocuments({ role: "driver" });
 
-    const cars = await Car.find({ owner: ownerId });
-    const bookings = await Booking.find({ owner: ownerId })
-      .populate("car", "name model images")
+    // Fetch drivers availability stats
+    const availableDrivers = await Driver.countDocuments({ status: "available" });
+    const busyDrivers = await Driver.countDocuments({ status: "busy" });
+    const offlineDrivers = await Driver.countDocuments({ status: "offline" });
+
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .populate("driver", "name email")
       .sort({ createdAt: -1 });
 
-    const availableCars = cars.filter(c => c.availability === "Available").length;
-    const rentedCars = cars.filter(c => c.availability === "Rented").length;
-    const maintenanceCars = cars.filter(c => c.availability === "Maintenance").length;
+    const pendingBookings = bookings.filter((b) => b.status === "pending").length;
+    const completedBookings = bookings.filter((b) => b.status === "completed" || b.status === "paid").length;
+    const cancelledBookings = bookings.filter((b) => b.status === "cancelled").length;
 
-    const totalEarnings = cars.reduce((sum, c) => sum + c.totalEarnings, 0);
-
-    const monthlyRevenue = bookings
-      .filter(b => b.status === "Completed")
+    // Revenue calculations
+    const totalEarnings = bookings
+      .filter((b) => b.status === "completed" || b.status === "paid")
       .reduce((sum, b) => sum + b.price, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayRevenue = bookings
+      .filter((b) => (b.status === "completed" || b.status === "paid") && new Date(b.createdAt) >= today)
+      .reduce((sum, b) => sum + b.price, 0);
+
+    // List of drivers (for dropdowns)
+    const driversList = await User.find({ role: "driver" }).select("-password");
 
     res.json({
       success: true,
       stats: {
-        totalCars: cars.length,
-        availableCars,
-        rentedCars,
-        maintenanceCars,
+        totalCars,
+        availableDrivers,
+        busyDrivers,
+        offlineDrivers,
         totalEarnings,
-        monthlyRevenue,
-        previousMonthRevenue: 0,
-        carsChange: 0,
-        earningsChange: 0,
+        todayRevenue,
+        pendingBookings,
+        completedBookings,
+        cancelledBookings,
+        customersCount,
+        driversCount,
       },
-      myCars: cars,
-      recentBookings: bookings.slice(0, 5),
-      notifications: [],
+      bookings,
+      drivers: driversList,
+      recentBookings: bookings.slice(0, 10),
     });
   } catch (error) {
     res.json({ success: false, message: error.message });

@@ -1,189 +1,432 @@
-import React, { useState } from 'react';
-import { dummyCarData } from '../assets/assets';
-import CarCard from '../components/CarCards';
-import Title from '../components/Title';
+import React, { useState, useEffect } from "react";
+import { useAppContext } from "../components/context/AppContext";
+import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 const Cars = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const { axios, token, user } = useAppContext();
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [dropAddress, setDropAddress] = useState("");
+  const [pickupDate, setPickupDate] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
+  const [distance, setDistance] = useState(10);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
-  // Filter cars based on search query
-  const filteredCars = dummyCarData.filter(car => 
-    car.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    car.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    car.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    car.fuel_type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Pricing engine factors
+  const baseFare = 50;
+  const perKmRate = 12;
+  const gstRate = 5;
+  const distanceFare = distance * perKmRate;
+  const subTotal = baseFare + distanceFare;
+  const gst = Math.round(subTotal * (gstRate / 100));
+  const estimatedTotal = subTotal + gst;
+
+  const fetchUserBookings = async () => {
+    if (!token) return;
+    try {
+      setHistoryLoading(true);
+      const { data } = await axios.get("/api/booking/user");
+      if (data.success) {
+        setBookings(data.bookings);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const isBookingDay = (pickupDateString) => {
+    const today = new Date().toDateString();
+    const pickupDate = new Date(pickupDateString).toDateString();
+    return today === pickupDate;
+  };
+
+  useEffect(() => {
+    fetchUserBookings();
+  }, [token]);
+
+  useEffect(() => {
+    if (!token || bookings.length === 0) return;
+
+    // Connect to real-time WebSockets
+    const socket = io(import.meta.env.VITE_BASE_URL || "http://localhost:3000");
+
+    // Join room for each booking to listen to events
+    bookings.forEach((b) => {
+      socket.emit("joinBooking", b._id);
+    });
+
+    // Listen for live status transitions
+    socket.on("statusChanged", ({ status, booking }) => {
+      toast(`Trip Status Updated: ${status.replace("_", " ").toUpperCase()}`, {
+        icon: "🚗",
+        style: { background: "#2563eb", color: "#fff", fontWeight: "bold" }
+      });
+      fetchUserBookings();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [bookings.length, token]);
+
+  const handleBookRide = async (e) => {
+    e.preventDefault();
+    if (!token) {
+      toast.error("Please login to book a ride!");
+      return;
+    }
+    if (!pickupAddress || !dropAddress || !pickupDate || !pickupTime) {
+      toast.error("Please fill in all booking fields!");
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+      const { data } = await axios.post("/api/booking/create", {
+        pickupAddress,
+        dropAddress,
+        pickupDate,
+        pickupTime,
+        distance,
+      });
+
+      if (data.success) {
+        toast.success("Ride requested successfully!");
+        setPickupAddress("");
+        setDropAddress("");
+        setPickupDate("");
+        setPickupTime("");
+        fetchUserBookings();
+      } else {
+        toast.error(data.message || "Failed to book ride");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to request booking");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "confirmed": return "bg-blue-100 text-blue-800";
+      case "driver_assigned": return "bg-indigo-100 text-indigo-800";
+      case "driver_accepted": return "bg-purple-100 text-purple-800";
+      case "driver_on_way": return "bg-amber-100 text-amber-800";
+      case "driver_arrived": return "bg-cyan-100 text-cyan-800";
+      case "started": return "bg-orange-100 text-orange-800";
+      case "completed":
+      case "paid": return "bg-green-100 text-green-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusStepIndex = (status) => {
+    const steps = [
+      "pending",
+      "confirmed",
+      "driver_assigned",
+      "driver_accepted",
+      "driver_on_way",
+      "driver_arrived",
+      "started",
+      "completed",
+      "paid"
+    ];
+    return steps.indexOf(status);
+  };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-white overflow-hidden">
-      
+    <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-white px-6 md:px-16 lg:px-24 xl:px-32 py-12 overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute top-20 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-0 w-72 h-72 bg-blue-400/5 rounded-full blur-3xl"></div>
 
-      {/* Hero Section */}
-      <div className="relative z-10 bg-gradient-to-br from-gray-100 via-blue-50/50 to-gray-100 py-20 px-6 md:px-16 lg:px-24 xl:px-32">
-        <div className="max-w-4xl mx-auto text-center">
-          
-          {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-primary bg-clip-text text-transparent leading-tight mb-4">
-              Available Cars
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 font-medium">
-              Browse our selection of premium vehicles available for your next adventure
-            </p>
-          </div>
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 max-w-7xl mx-auto">
+        {/* LEFT COLUMN: BOOKING FORM & WALLET */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* BOOKING FORM CARD */}
+          <div className="bg-white shadow-2xl rounded-3xl p-8 border border-gray-100">
+            <h2 className="text-3xl font-black text-gray-900 mb-2">Book Your Cab</h2>
+            <p className="text-gray-500 text-sm mb-6">Enter details to request a driver partner instantly.</p>
 
-          {/* Search Bar */}
-          <div className="relative max-w-2xl mx-auto">
-            <div className="flex items-center bg-white rounded-full shadow-xl border-2 border-gray-200 hover:border-primary/50 focus-within:border-primary transition-all duration-300">
-              
-              {/* Search Icon */}
-              <div className="pl-6">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+            <form onSubmit={handleBookRide} className="space-y-5">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Pickup Address</label>
+                <input
+                  type="text"
+                  placeholder="e.g., 221B Baker Street, London"
+                  value={pickupAddress}
+                  onChange={(e) => setPickupAddress(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                />
               </div>
 
-              {/* Search Input */}
-              <input
-                type="text"
-                placeholder="Search by make, model, or features"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-4 bg-transparent outline-none text-gray-700 font-medium placeholder-gray-400"
-              />
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Drop Address</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Heathrow Airport Terminal 5"
+                  value={dropAddress}
+                  onChange={(e) => setDropAddress(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                />
+              </div>
 
-              {/* Filter Button */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Date</label>
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(e) => setPickupDate(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition text-gray-600 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Time Slot</label>
+                  <input
+                    type="time"
+                    value={pickupTime}
+                    onChange={(e) => setPickupTime(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition text-gray-600 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 flex justify-between">
+                  <span>Estimated Distance</span>
+                  <span className="text-primary font-black">{distance} KM</span>
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={distance}
+                  onChange={(e) => setDistance(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+              </div>
+
+              {/* Fare Breakdown Card */}
+              <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-3">
+                <h3 className="font-bold text-gray-800 border-b pb-2 mb-2 text-sm uppercase tracking-wider">Fare Breakdown</h3>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Base Fare</span>
+                  <span>₹{baseFare}.00</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Distance Charges ({distance} KM)</span>
+                  <span>₹{distanceFare}.00</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>GST (5%)</span>
+                  <span>₹{gst}.00</span>
+                </div>
+                <div className="flex justify-between font-black text-gray-900 text-lg border-t pt-3 mt-2">
+                  <span>Estimated Fare</span>
+                  <span className="text-primary">₹{estimatedTotal}.00</span>
+                </div>
+              </div>
+
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="mr-3 p-3 hover:bg-gray-100 rounded-full transition-colors"
-                aria-label="Filters"
+                type="submit"
+                disabled={bookingLoading}
+                className="w-full py-4 bg-primary hover:bg-primary-dull text-white font-bold text-lg rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
+                {bookingLoading ? "Requesting Driver..." : "Book Cab Now"}
+              </button>
+            </form>
+          </div>
+
+          {/* Wallet & Referral Widget */}
+          <div className="bg-white shadow-2xl rounded-3xl p-8 border border-gray-100 space-y-6">
+            <div className="flex items-center justify-between border-b pb-4">
+              <div>
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-wider">Your Wallet</span>
+                <h4 className="text-2xl font-black text-gray-900 mt-0.5">₹500.00</h4>
+              </div>
+              <button
+                onClick={() => toast.success("Wallet top-up window is locked in demo mode.")}
+                className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-xl transition"
+              >
+                + Add Cash
               </button>
             </div>
 
-            {/* Filter Dropdown (Optional) */}
-            {showFilters && (
-              <div className="absolute top-full left-0 right-0 mt-4 bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 animate-[fadeIn_0.3s_ease-out]">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-100 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-blue-500 font-bold uppercase">Refer & Earn</span>
+                <p className="font-bold text-gray-800 text-xs mt-0.5">Get ₹100 Free Ride Cash</p>
+                <p className="text-[10px] text-gray-500">Share code: CABREF100</p>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText("CABREF100");
+                  toast.success("Referral code copied to clipboard!");
+                }}
+                className="px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-50 text-xs font-bold rounded-lg border shadow-sm transition"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: LIVE TRACKING & HISTORY */}
+        <div className="lg:col-span-7 space-y-8">
+          {/* Map Placeholder Graphic */}
+          {/* Real Google Maps Iframe Embed */}
+          <div className="bg-white border rounded-3xl shadow-xl relative overflow-hidden h-[350px]">
+            <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                pickupAddress || "Bengaluru, India"
+              )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+            ></iframe>
+
+            {/* SOS emergency button */}
+            <button
+              onClick={() => {
+                toast.error("🚨 EMERGENCY SOS SIGNAL SENT! Admin & Police notified. Stay calm, help is on the way.", {
+                  duration: 6000,
+                  style: { background: "#ef4444", color: "#fff", fontWeight: "bold" }
+                });
+              }}
+              className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white font-black text-xs px-3.5 py-2 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 flex items-center gap-1.5 z-20 animate-pulse"
+            >
+              🚨 EMERGENCY SOS
+            </button>
+          </div>
+
+          {/* ACTIVE BOOKINGS & STEP TRACKER */}
+          <div className="bg-white shadow-xl rounded-3xl p-8 border border-gray-100">
+            <h3 className="text-2xl font-black text-gray-900 mb-6">Your Bookings & Live Status</h3>
+
+            {historyLoading ? (
+              <div className="text-center py-12">
+                <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-gray-500 text-sm">Loading trip history...</p>
+              </div>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-12 text-gray-500 text-sm">
+                No bookings requested yet. Book a ride to see live tracking updates here!
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {bookings.map((booking) => {
+                  const stepIndex = getStatusStepIndex(booking.status);
                   
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-                    <select className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-primary outline-none">
-                      <option>All Categories</option>
-                      <option>SUV</option>
-                      <option>Sedan</option>
-                      <option>Sports</option>
-                      <option>Luxury</option>
-                    </select>
-                  </div>
+                  return (
+                    <div key={booking._id} className="border-b pb-8 last:border-0 last:pb-0">
+                      <div className="flex justify-between items-start flex-wrap gap-4 mb-4">
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <span className="font-black text-gray-900 text-lg">Trip ID: {booking._id.slice(-6).toUpperCase()}</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusBadgeClass(booking.status)}`}>
+                              {booking.status.replace("_", " ").toUpperCase()}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Pickup Date: {new Date(booking.pickupDate).toLocaleDateString()} | Time: {booking.pickupTime || "Anytime"}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xl font-black text-primary">₹{booking.price}.00</span>
+                          <p className="text-xs text-gray-400">Fare Calculated</p>
+                        </div>
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Fuel Type</label>
-                    <select className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-primary outline-none">
-                      <option>All Types</option>
-                      <option>Petrol</option>
-                      <option>Diesel</option>
-                      <option>Electric</option>
-                      <option>Hybrid</option>
-                    </select>
-                  </div>
+                      {/* Route specs */}
+                      <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border mb-6 text-sm">
+                        <div>
+                          <span className="block text-xs text-gray-400 font-bold uppercase">Pickup Point</span>
+                          <span className="text-gray-700 font-semibold">{booking.pickupAddress}</span>
+                        </div>
+                        <div>
+                          <span className="block text-xs text-gray-400 font-bold uppercase">Drop Point</span>
+                          <span className="text-gray-700 font-semibold">{booking.dropAddress}</span>
+                        </div>
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Price Range</label>
-                    <select className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-primary outline-none">
-                      <option>Any Price</option>
-                      <option>Under $100</option>
-                      <option>$100 - $200</option>
-                      <option>$200 - $300</option>
-                      <option>$300+</option>
-                    </select>
-                  </div>
-                </div>
+                      {/* Driver Details Card (Only if driver assigned) */}
+                      {booking.driver && (
+                        isBookingDay(booking.pickupDate) ? (
+                          <div className="bg-blue-50 border border-blue-200 p-5 rounded-2xl mb-6 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg">
+                                {booking.driver.name?.charAt(0) || "D"}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-900">{booking.driver.name}</h4>
+                                <p className="text-xs text-gray-500">Vehicle: Swift Dzire (MH12-TY-7843)</p>
+                                <p className="text-xs text-gray-500">Contact: {booking.driver.phone || "+91 98765 43210"}</p>
+                                <p className="text-xs text-green-600 font-semibold mt-1">● Live tracking & ETA sharing active</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="block text-xs text-gray-500 font-bold">Trip OTP Code</span>
+                              <span className="text-xl font-black text-blue-600 tracking-widest bg-white border border-blue-200 px-3 py-1 rounded-lg">
+                                {booking.otp || "----"}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-amber-50 border border-amber-200 p-5 rounded-2xl mb-6 text-sm text-amber-800 font-medium">
+                            🔒 Driver assigned! Driver contact, vehicle number, and safety OTP will unlock automatically on the booking day ({new Date(booking.pickupDate).toLocaleDateString()}).
+                          </div>
+                        )
+                      )}
 
-                <div className="flex justify-end gap-3 mt-6">
-                  <button 
-                    onClick={() => setShowFilters(false)}
-                    className="px-6 py-2 text-gray-600 hover:bg-gray-100 rounded-xl font-semibold transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button className="px-6 py-2 bg-gradient-to-r from-primary to-primary-dull text-white rounded-xl font-semibold hover:shadow-lg transition-all">
-                    Apply Filters
-                  </button>
-                </div>
+                      {/* Horizontal Step Tracker */}
+                      {booking.status !== "cancelled" && (
+                        <div className="w-full mt-6">
+                          <div className="flex items-center justify-between text-xs text-gray-400 font-bold uppercase mb-2">
+                            <span>Request Status Progress</span>
+                            <span className="text-primary">{Math.min(100, Math.round((stepIndex / 8) * 100))}% Complete</span>
+                          </div>
+                          {/* Progress Line */}
+                          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-500" 
+                              style={{ width: `${(stepIndex / 8) * 100}%` }}
+                            ></div>
+                          </div>
+                          
+                          {/* Steps indicators */}
+                          <div className="grid grid-cols-4 gap-2 mt-2 text-center text-[10px] font-bold text-gray-500">
+                            <div className={stepIndex >= 0 ? "text-primary" : ""}>Pending</div>
+                            <div className={stepIndex >= 2 ? "text-primary" : ""}>Assigned</div>
+                            <div className={stepIndex >= 5 ? "text-primary" : ""}>On The Way</div>
+                            <div className={stepIndex >= 7 ? "text-primary" : ""}>Completed</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Cars Grid Section */}
-      <div className="relative z-10 px-6 md:px-16 lg:px-24 xl:px-32 py-16">
-        
-        {/* Results Count */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Showing {filteredCars.length} {filteredCars.length === 1 ? 'Car' : 'Cars'}
-          </h2>
-        </div>
-
-        {/* Cars Grid */}
-        {filteredCars.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {filteredCars.map((car, index) => (
-              <div
-                key={car._id}
-                style={{
-                  animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
-                }}
-              >
-                <CarCard car={car} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <div className="mb-6">
-              <svg className="w-24 h-24 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No cars found</h3>
-            <p className="text-gray-500 mb-6">Try adjusting your search or filters</p>
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dull text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-            >
-              Clear Search
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Animation Keyframes */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 };

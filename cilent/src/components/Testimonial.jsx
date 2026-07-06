@@ -5,30 +5,30 @@ import { assets } from "../assets/assets";
 const testimonials = [
   {
     id: 1,
-    name: "Riya Bansal",
-    location: "Bharatpur, India",
-    image: assets.testimonial_image_1,
-    rating: 5,
-    review:
-      "I've rented cars from various platforms, but CarRental truly stands out. The service was smooth and reliable.",
-  },
-  {
-    id: 2,
     name: "Akshat Srivastava",
-    location: "Kota, India",
+    location: "Lucknow, India",
     image: assets.testimonial_image_2,
     rating: 5,
     review:
-      "CarRental made my journey stress-free. Booking was easy, the car was clean, and customer support was excellent.",
+      "Booking a ride was incredibly simple! The driver was assigned within seconds, and the AI chatbot estimated the fare perfectly before booking.",
+  },
+  {
+    id: 2,
+    name: "Riya Bansal",
+    location: "Kota, India",
+    image: assets.testimonial_image_1,
+    rating: 5,
+    review:
+      "The best cab experience. The live tracking was super accurate, and having the safety emergency SOS panic button gave me complete peace of mind.",
   },
   {
     id: 3,
     name: "Aashi Srivastava",
-    location: "Lucknow, India",
+    location: "Bharatpur, India",
     image: assets.testimonial_image_1,
     rating: 5,
     review:
-      "Amazing experience! Great car options, transparent pricing, and very professional service. Highly recommended.",
+      "Highly professional service. The driver arrived on time, verified my security OTP code, and the sedan was clean and comfortable. Value for money!",
   },
 ];
 
@@ -44,7 +44,7 @@ const Testimonial = () => {
       <div className="relative z-10">
         <Title
           title="What Our Customers Say"
-          subTitle="Discover why discerning travelers choose us for their luxury car rental needs around the world."
+          subTitle="Discover why smart passengers choose us for their daily commutes and premium travel needs."
         />
       </div>
 
@@ -54,7 +54,7 @@ const Testimonial = () => {
         {testimonials.map((testimonial, index) => (
           <div
             key={testimonial.id}
-            className="group bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 flex flex-col"
+            className="group bg-white/85 backdrop-blur-sm p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-100 hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 flex flex-col relative"
             style={{
               animation: `fadeInUp 0.6s ease-out ${index * 0.15}s both`
             }}
@@ -109,14 +109,14 @@ const Testimonial = () => {
             </div>
 
             {/* REVIEW */}
-            <p className="text-base text-gray-700 leading-relaxed font-medium flex-grow">
+            <p className="text-base text-gray-700 leading-relaxed font-medium flex-grow italic">
               "{testimonial.review}"
             </p>
 
-            {/* Decorative Bottom Line */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            {/* Verified Customer Bottom Badge */}
+            <div className="mt-6 pt-6 border-t border-gray-100">
               <div className="flex items-center justify-between text-xs text-gray-400">
-                <span className="font-semibold">Verified Customer</span>
+                <span className="font-semibold">Verified Rider</span>
                 <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
@@ -128,7 +128,7 @@ const Testimonial = () => {
       </div>
 
       {/* Animation Keyframes */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

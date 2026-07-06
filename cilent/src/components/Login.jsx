@@ -12,6 +12,9 @@ const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("customer");
+  const [secretCode, setSecretCode] = useState("");
   const [loading, setLoading] = useState(false);
 
   const onSubmitHandler = async (e) => {
@@ -26,8 +29,8 @@ const Login = () => {
 
       const payload =
         state === "Sign Up"
-          ? { name, email, password }
-          : { email, password };
+          ? { name, email, password, role, secretCode, phone }
+          : { email, password, secretCode };
 
       const { data } = await axios.post(url, payload);
 
@@ -39,7 +42,11 @@ const Login = () => {
       // ✅ SUCCESS FLOW
       localStorage.setItem("token", data.token);
       setToken(data.token);
-      await fetchUser();
+      
+      // Fetch user profile to read role
+      const { data: userProfileData } = await axios.get("/api/user/me", {
+        headers: { Authorization: `Bearer ${data.token}` }
+      });
 
       toast.success(
         state === "Sign Up"
@@ -49,8 +56,18 @@ const Login = () => {
 
       setShowLogin(false);
 
-      // ✅ OPTIONAL REDIRECT (recommended)
-      navigate("/"); // or "/owner" if you want direct dashboard
+      if (userProfileData.success && userProfileData.user) {
+        const u = userProfileData.user;
+        if (u.role === "admin" || u.role === "super_admin") {
+          navigate("/owner");
+        } else if (u.role === "driver") {
+          navigate("/driver");
+        } else {
+          navigate("/");
+        }
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -83,6 +100,34 @@ const Login = () => {
           {state === "Login" ? "Welcome Back" : "Create Account"}
         </h2>
 
+        {/* ROLE SELECTION */}
+        <div className="mb-3">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+            Sign in as
+          </label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full border p-3 rounded-lg bg-white text-sm outline-none"
+          >
+            <option value="customer">Customer / Passenger</option>
+            <option value="driver">Driver</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        {/* ADMIN SECRET CODE */}
+        {(role === "admin" || role === "super_admin") && (
+          <input
+            type="password"
+            placeholder="Admin Secret Code"
+            value={secretCode}
+            onChange={(e) => setSecretCode(e.target.value)}
+            required
+            className="w-full border p-3 rounded-lg mb-3 outline-none"
+          />
+        )}
+
         {/* NAME */}
         {state === "Sign Up" && (
           <input
@@ -90,6 +135,18 @@ const Login = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full border p-3 rounded-lg mb-3"
+          />
+        )}
+
+        {/* PHONE */}
+        {state === "Sign Up" && (
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             required
             className="w-full border p-3 rounded-lg mb-3"
           />

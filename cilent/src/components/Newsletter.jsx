@@ -1,6 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
+import { useAppContext } from "./context/AppContext";
+import toast from "react-hot-toast";
 
 const Newsletter = () => {
+  const { axios } = useAppContext();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/user/subscribe", { email });
+
+      if (data.success) {
+        toast.success(data.message || "Subscribed successfully!");
+        setEmail("");
+      } else {
+        toast.error(data.message || "Subscription failed.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to connect. Try again!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center text-center max-md:px-4 my-20 mb-32 overflow-hidden">
 
@@ -30,18 +58,21 @@ const Newsletter = () => {
 
         {/* Subtitle */}
         <p className="md:text-xl text-base text-gray-600 font-medium pb-10 max-w-2xl mx-auto leading-relaxed">
-          Subscribe to get the latest offers, new arrivals, and exclusive discounts delivered straight to your inbox
+          Subscribe to get the latest offers, route updates, and exclusive discounts delivered straight to your inbox.
         </p>
 
         {/* Form */}
-        <form className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl w-full mx-auto">
+        <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl w-full mx-auto">
           <div className="relative w-full sm:flex-1 group">
             <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
             <input
               className="relative z-10 w-full h-14 border-2 border-gray-300 hover:border-primary focus:border-primary rounded-full outline-none px-6 text-gray-700 font-medium placeholder-gray-400 shadow-sm hover:shadow-md focus:shadow-lg transition-all duration-300 bg-white"
               type="email"
               placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
             <svg className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -50,10 +81,11 @@ const Newsletter = () => {
 
           <button
             type="submit"
-            className="relative group w-full sm:w-auto px-10 h-14 text-white font-bold text-base bg-gradient-to-r from-primary to-primary-dull hover:from-primary-dull hover:to-primary rounded-full cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-105 active:scale-95"
+            disabled={loading}
+            className="relative group w-full sm:w-auto px-10 h-14 text-white font-bold text-base bg-gradient-to-r from-primary to-primary-dull hover:from-primary-dull hover:to-primary rounded-full cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
-              Subscribe
+              {loading ? "Subscribing..." : "Subscribe"}
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>

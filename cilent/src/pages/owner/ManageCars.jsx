@@ -1,29 +1,66 @@
 import React, { useEffect, useState } from "react";
-import { dummyCarData, assets } from "../../assets/assets";
+import { assets } from "../../assets/assets";
 import Title from "../../components/owner/Title";
+import { useAppContext } from "../../components/context/AppContext";
+import toast from "react-hot-toast";
 
 const ManageCars = () => {
+  const { axios } = useAppContext();
   const currency = import.meta.env.VITE_CURRENCY || "$";
   const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchOwnerCars = async () => {
-    setCars(dummyCarData);
+    try {
+      setLoading(true);
+      const { data } = await axios.get("/api/owner/cars");
+      if (data.success) {
+        const mappedCars = (data.cars || []).map((car) => ({
+          ...car,
+          brand: car.name,
+          image: car.images && car.images.length > 0 
+            ? `${import.meta.env.VITE_BASE_URL}/${car.images[0]}` 
+            : "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400"
+        }));
+        setCars(mappedCars);
+      } else {
+        toast.error(data.message || "Failed to load cars");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load cars");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchOwnerCars();
   }, []);
 
-  const toggleCarAvailability = (index) => {
-    setCars(prev => 
-      prev.map((car, i) => 
-        i === index 
-          ? { ...car, isAvailable: !car.isAvailable }
-          : car
-      )
-    );
+  const toggleCarAvailability = async (index) => {
+    const car = cars[index];
+    try {
+      const { data } = await axios.post("/api/owner/toggle-car", {
+        carId: car._id,
+      });
+
+      if (data.success) {
+        toast.success("Availability updated successfully");
+        setCars((prev) =>
+          prev.map((c, i) =>
+            i === index ? { ...c, isAvailable: !c.isAvailable } : c
+          )
+        );
+      } else {
+        toast.error(data.message || "Failed to update availability");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update availability");
+    }
   };
 
   const handleDeleteCar = (car, index) => {
@@ -31,10 +68,25 @@ const ManageCars = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setCars(prev => prev.filter((_, i) => i !== selectedCar.index));
-    setShowDeleteModal(false);
-    setSelectedCar(null);
+  const confirmDelete = async () => {
+    try {
+      const { data } = await axios.post("/api/owner/delete-car", {
+        carId: selectedCar._id,
+      });
+
+      if (data.success) {
+        toast.success("Car deleted successfully");
+        setCars((prev) => prev.filter((_, i) => i !== selectedCar.index));
+      } else {
+        toast.error(data.message || "Failed to delete car");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete car");
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedCar(null);
+    }
   };
 
   return (
@@ -84,7 +136,14 @@ const ManageCars = () => {
 
               {/* TABLE BODY */}
               <tbody>
-                {cars.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-gray-500">
+                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                      Loading cars...
+                    </td>
+                  </tr>
+                ) : cars.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="p-8 text-center text-gray-500">
                       No cars listed yet. Add your first car to get started!

@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { assets, cityList } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate("/cars");
+  };
 
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-center gap-12 md:gap-20 bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100 px-4 py-12 overflow-hidden">
@@ -18,15 +25,15 @@ const Hero = () => {
       {/* Heading Section */}
       <div className="relative z-10 text-center space-y-4">
         <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-primary bg-clip-text text-transparent leading-tight tracking-tight">
-          Luxury cars on Rent
+          Premium Cabs & Drivers
         </h1>
         <p className="text-gray-600 text-lg md:text-xl font-medium">
-          Experience premium comfort with our exclusive fleet
+          Experience comfort and safety with our verified driver partners
         </p>
       </div>
 
       {/* Search Form */}
-      <form className="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 md:py-6 md:px-8 rounded-3xl md:rounded-full w-full max-w-80 md:max-w-[1200px] bg-white/80 backdrop-blur-xl shadow-[0px_20px_60px_rgba(0,0,0,0.12)] hover:shadow-[0px_25px_70px_rgba(0,0,0,0.15)] border border-gray-100 transition-all duration-500 hover:scale-[1.02]">
+      <form onSubmit={handleSearch} className="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 md:py-6 md:px-8 rounded-3xl md:rounded-full w-full max-w-80 md:max-w-[1200px] bg-white/80 backdrop-blur-xl shadow-[0px_20px_60px_rgba(0,0,0,0.12)] hover:shadow-[0px_25px_70px_rgba(0,0,0,0.15)] border border-gray-100 transition-all duration-500 hover:scale-[1.02]">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 w-full">
           
           {/* PICKUP LOCATION */}
@@ -145,7 +152,7 @@ const Hero = () => {
       </div>
 
       {/* Floating animation keyframes */}
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) scale(1); }
           50% { transform: translateY(-20px) scale(1.05); }

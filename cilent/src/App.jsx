@@ -4,11 +4,13 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Login from "./components/Login";
+import ChatbotFloat from "./components/ChatbotFloat";
 
 import Home from "./pages/Home";
 import Cars from "./pages/Cars";
 import CarDetails from "./pages/CarDetails";
 import MyBookings from "./pages/MyBookings";
+import DriverDashboard from "./pages/driver/DriverDashboard";
 
 // OWNER PAGES
 import Layout from "./pages/owner/Layout";
@@ -41,6 +43,7 @@ const App = () => {
         <Route path="/cars" element={<Cars />} />
         <Route path="/car-details/:id" element={<CarDetails />} />
         <Route path="/mybookings" element={<MyBookings />} />
+        <Route path="/driver" element={<DriverDashboard />} />
 
         {/* OWNER ROUTES */}
         <Route path="/owner" element={<Layout />}>
@@ -54,6 +57,9 @@ const App = () => {
 
       {/* USER FOOTER */}
       {!isOwnerPath && <Footer />}
+
+      {/* CHATBOT */}
+      {!isOwnerPath && <ChatbotFloat />}
     </>
   );
 };

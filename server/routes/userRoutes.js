@@ -4,7 +4,10 @@ import {
   loginUser,
   getUserData,
   getCars,
-  updateUserImage
+  getCarById,
+  updateUserImage,
+  getChatResponse,
+  subscribeEmail
 } from "../controllers/userController.js";
 
 import { protect } from "../middleware/auth.js";
@@ -15,6 +18,8 @@ const userRouter = express.Router();
 // AUTH
 userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
+userRouter.post("/chatbot", getChatResponse);
+userRouter.post("/subscribe", subscribeEmail);
 
 // USER
 userRouter.get("/me", protect, getUserData);
@@ -29,5 +34,6 @@ userRouter.post(
 
 // PUBLIC
 userRouter.get("/cars", getCars);
+userRouter.get("/cars/:id", getCarById);
 
 export default userRouter;

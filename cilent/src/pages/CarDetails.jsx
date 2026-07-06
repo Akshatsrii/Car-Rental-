@@ -1,29 +1,94 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {  dummyCarData } from "../assets/assets";
+import { useAppContext } from "../components/context/AppContext";
+import toast from "react-hot-toast";
 
 const CarDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { axios, token, setShowLogin } = useAppContext();
+
   const [car, setCar] = useState(null);
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
-  useEffect(() => {
-    const foundCar = dummyCarData.find((car) => car._id === id);
-    setCar(foundCar);
-  }, [id]);
-
-  const handleBooking = (e) => {
-    e.preventDefault();
-    // Add booking logic here
-    console.log("Booking:", { car, pickupDate, returnDate });
+  const fetchCarDetails = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/user/cars/${id}`);
+      if (data.success) {
+        const c = data.car;
+        setCar({
+          ...c,
+          image: c.images && c.images.length > 0 
+            ? `${import.meta.env.VITE_BASE_URL}/${c.images[0]}` 
+            : "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400",
+          fuel_type: c.fuelType || "Petrol",
+          seating_capacity: c.seatingCapacity || 5,
+          isAvaliable: c.availability === "Available",
+        });
+      } else {
+        toast.error(data.message || "Failed to load car details");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load car details");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return car ? (
+  useEffect(() => {
+    fetchCarDetails();
+  }, [id]);
+
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    if (!token) {
+      toast.error("Please login first to book a car");
+      setShowLogin(true);
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+      const { data } = await axios.post("/api/booking/create", {
+        car: id,
+        pickupDate,
+        returnDate,
+      });
+
+      if (data.success) {
+        toast.success("Car booked successfully!");
+        navigate("/mybookings");
+      } else {
+        toast.error(data.message || "Failed to book car");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to book car");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  if (loading || !car) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 text-lg font-medium">Loading car details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-white px-6 md:px-16 lg:px-24 xl:px-32 py-12 overflow-hidden">
 
       {/* Decorative Background Elements */}
@@ -235,9 +300,10 @@ const CarDetails = () => {
             {/* Book Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-dull hover:from-primary-dull hover:to-primary text-white font-bold text-lg py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 mb-4"
+              disabled={bookingLoading}
+              className="w-full bg-gradient-to-r from-primary to-primary-dull hover:from-primary-dull hover:to-primary text-white font-bold text-lg py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Book Now
+              {bookingLoading ? "Booking Car..." : "Book Now"}
             </button>
 
             {/* Info Text */}
@@ -268,13 +334,6 @@ const CarDetails = () => {
             </div>
           </form>
         </div>
-      </div>
-    </div>
-  ) : (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-500 text-lg font-medium">Loading car details...</p>
       </div>
     </div>
   );

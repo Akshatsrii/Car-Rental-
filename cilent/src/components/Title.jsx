@@ -30,7 +30,7 @@ const Title = ({ title, subTitle, align }) => {
       </div>
 
       {/* Shimmer Animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }

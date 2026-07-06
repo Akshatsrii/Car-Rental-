@@ -24,6 +24,10 @@ const carSchema = new mongoose.Schema(
       type: String,
       default: "Available",
     },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
 
     insurance: String,
     insuranceExpiry: Date,

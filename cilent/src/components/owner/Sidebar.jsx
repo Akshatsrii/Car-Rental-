@@ -46,7 +46,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="fixed left-0 top-16 min-h-screen md:flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-gray-200 text-sm bg-white z-40">
+    <div className="min-h-screen flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-gray-200 text-sm bg-white z-40">
 
       {/* PROFILE IMAGE */}
       <div className="relative group">

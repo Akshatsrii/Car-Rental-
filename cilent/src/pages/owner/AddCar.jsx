@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 import Title from "../../components/owner/Title";
+import { useAppContext } from "../../components/context/AppContext";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const AddCar = () => {
+  const { axios } = useAppContext();
+  const navigate = useNavigate();
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,6 +25,7 @@ const AddCar = () => {
     seatingCapacity: "",
     location: "",
     description: "",
+    registrationNumber: "",
   });
 
   const categoryOptions = ["Sedan", "SUV", "Hatchback", "Coupe", "Convertible", "Van", "Truck", "Luxury"];
@@ -97,26 +103,55 @@ const AddCar = () => {
     setSubmitStatus(null);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      console.log("Form Data:", formData);
-      console.log("Image:", image);
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.brand);
+      formDataToSend.append("model", formData.model);
+      formDataToSend.append("year", formData.year);
+      formDataToSend.append("pricePerDay", formData.dailyPrice);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("transmission", formData.transmission);
+      formDataToSend.append("fuelType", formData.fuelType);
+      formDataToSend.append("seatingCapacity", formData.seatingCapacity);
+      formDataToSend.append("location", formData.location);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("registrationNumber", formData.registrationNumber);
+      formDataToSend.append("availability", "Available");
 
-      setSubmitStatus({ 
-        type: "success", 
-        message: "Car added successfully! Redirecting..." 
+      if (image) {
+        formDataToSend.append("images", image);
+      }
+
+      const { data } = await axios.post("/api/owner/add-car", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      // Reset form after successful submission
-      setTimeout(() => {
-        resetForm();
-      }, 2000);
+      if (data.success) {
+        toast.success("Car added successfully!");
+        setSubmitStatus({ 
+          type: "success", 
+          message: "Car added successfully! Redirecting..." 
+        });
 
-    } catch (Error) {
+        setTimeout(() => {
+          resetForm();
+          navigate("/owner/manage-cars");
+        }, 2000);
+      } else {
+        toast.error(data.message || "Failed to add car");
+        setSubmitStatus({
+          type: "error",
+          message: data.message || "Failed to add car"
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      const errMsg = error.response?.data?.message || "Failed to add car. Please try again.";
+      toast.error(errMsg);
       setSubmitStatus({ 
         type: "error", 
-        message: "Failed to add car. Please try again." 
+        message: errMsg 
       });
     } finally {
       setIsSubmitting(false);
@@ -135,6 +170,7 @@ const AddCar = () => {
       seatingCapacity: "",
       location: "",
       description: "",
+      registrationNumber: "",
     });
     setImage(null);
     setImagePreview(null);
@@ -404,7 +440,7 @@ const AddCar = () => {
             </div>
 
             {/* Location */}
-            <div className="sm:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Location *
               </label>
@@ -414,6 +450,22 @@ const AddCar = () => {
                 value={formData.location}
                 onChange={onChangeHandler}
                 placeholder="e.g., New York, NY"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+                required
+              />
+            </div>
+
+            {/* Registration Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Registration Number *
+              </label>
+              <input
+                type="text"
+                name="registrationNumber"
+                value={formData.registrationNumber}
+                onChange={onChangeHandler}
+                placeholder="e.g., DL3CAY1234"
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
                 required
               />

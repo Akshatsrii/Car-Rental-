@@ -1,12 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Title from './Title'
 import { assets, dummyCarData } from '../assets/assets'
 import CarCard from './CarCards'
 import { useNavigate } from 'react-router-dom'
+import { useAppContext } from './context/AppContext'
 
 const FeaturedSection = () => {
-
   const navigate = useNavigate()
+  const { axios } = useAppContext()
+  const [featuredCars, setFeaturedCars] = useState([])
+
+  const fetchFeaturedCars = async () => {
+    try {
+      const { data } = await axios.get('/api/user/cars')
+      if (data.success && data.cars && data.cars.length > 0) {
+        const mapped = data.cars.slice(0, 3).map((car) => ({
+          ...car,
+          image: car.images && car.images.length > 0 
+            ? `${import.meta.env.VITE_BASE_URL}/${car.images[0]}` 
+            : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400',
+          fuel_type: car.fuelType || 'Petrol',
+          seating_capacity: car.seatingCapacity || 5,
+          isAvaliable: car.availability === 'Available',
+        }))
+        setFeaturedCars(mapped)
+      } else {
+        setFeaturedCars(dummyCarData.slice(0, 3))
+      }
+    } catch (error) {
+      console.error(error)
+      setFeaturedCars(dummyCarData.slice(0, 3))
+    }
+  }
+
+  useEffect(() => {
+    fetchFeaturedCars()
+  }, [])
 
   return (
     <div className='relative flex flex-col items-center py-24 px-6 md:px-16 lg:px-24 xl:px-32 bg-gradient-to-b from-white via-gray-50/50 to-white overflow-hidden'>
@@ -23,7 +52,7 @@ const FeaturedSection = () => {
       </div>
 
       <div className='relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-16 w-full max-w-7xl'>
-        {dummyCarData.map((car, index) => (
+        {featuredCars.map((car, index) => (
           <div 
             key={car._id}
             className='transform hover:scale-105 transition-all duration-500'
