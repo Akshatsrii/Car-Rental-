@@ -9,8 +9,13 @@
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-RealTime-010101?style=for-the-badge&logo=socket.io&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-AI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Deployed](https://img.shields.io/badge/Deployed-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 **An enterprise-grade, production-ready ride-hailing platform with real-time tracking, AI-powered assistance, and full admin/driver command centers.**
+
+### 🔗 [**Live Demo →**](https://car-rental-omega-sage.vercel.app/)
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-00d084?style=for-the-badge&logo=vercel&logoColor=white)](https://car-rental-omega-sage.vercel.app/)
 
 [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Architecture](#-system-architecture) • [Roadmap](#-roadmap)
 
@@ -21,6 +26,7 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [Live Demo](#-live-demo)
 - [Key Features](#-key-features)
 - [Tech Stack](#-tech-stack)
 - [System Architecture](#-system-architecture)
@@ -44,6 +50,28 @@
 CarRental Cabs is a full-stack MERN (MongoDB, Express, React, Node.js) application built to simulate a real-world ride-hailing ecosystem — think Ola/Uber-style booking, dispatch, and live tracking — wrapped in a bilingual AI assistant, real-time Socket.IO event pipeline, and a data-driven admin control board.
 
 It's designed to be a strong **portfolio-grade** and **learning-grade** project: the codebase demonstrates authentication & RBAC, real-time systems, third-party AI integration, Dockerized deployment, and enterprise logging/audit practices — all in one repository.
+
+---
+
+## 🚀 Live Demo
+
+The app is deployed and publicly accessible: **[car-rental-omega-sage.vercel.app](https://car-rental-omega-sage.vercel.app/)**
+
+> ⚠️ Note: The live deployment hosts the frontend only (or a demo-mode backend). Some features that require persistent infrastructure — Socket.IO real-time events, Redis-backed rate limiting, SOS dispatch, and scheduled cron jobs — behave best when the full stack (server + MongoDB + Redis) is self-hosted via Docker Compose per the [Getting Started](#-getting-started) section below.
+
+### Demo Credentials *(suggested — wire these up in your seed script)*
+
+| Role | Email | Password |
+|---|---|---|
+| Customer | `customer@demo.com` | `Demo@123` |
+| Driver | `driver@demo.com` | `Demo@123` |
+| Admin | `admin@demo.com` | `Demo@123` |
+
+### 📸 Screenshots *(placeholder — add real captures from the live app)*
+
+| Customer Booking | Live Tracking | Admin Dashboard |
+|---|---|---|
+| ![Booking](https://via.placeholder.com/280x180?text=Booking+Screen) | ![Tracking](https://via.placeholder.com/280x180?text=Live+Tracking) | ![Admin](https://via.placeholder.com/280x180?text=Admin+Dashboard) |
 
 ---
 
