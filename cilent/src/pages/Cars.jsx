@@ -52,7 +52,7 @@ const Cars = () => {
     if (!token || bookings.length === 0) return;
 
     // Connect to real-time WebSockets
-    const socket = io(import.meta.env.VITE_BASE_URL || "http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BASE_URL || "https://car-rental-6nge.onrender.com");
 
     // Join room for each booking to listen to events
     bookings.forEach((b) => {
