@@ -56,6 +56,11 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+    serviceType: {
+      type: String,
+      enum: ["driver_assigned", "self_drive_pickup"],
+      default: "driver_assigned"
+    },
     rating: { type: Number, default: 0 },
     review: { type: String, default: "" }
   },

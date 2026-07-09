@@ -13,6 +13,9 @@ const Cars = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [cars, setCars] = useState([]);
+  const [selectedCar, setSelectedCar] = useState("");
+  const [serviceType, setServiceType] = useState("driver_assigned");
 
   // Pricing engine factors
   const baseFare = 50;
@@ -44,9 +47,28 @@ const Cars = () => {
     return today === pickupDate;
   };
 
+  const fetchCars = async () => {
+    try {
+      const { data } = await axios.get("/api/user/cars");
+      if (data.success) {
+        setCars(data.cars);
+        if (data.cars.length > 0) {
+          setSelectedCar(data.cars[0]._id);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    fetchUserBookings();
+    fetchMyBookings();
+    fetchCars();
   }, [token]);
+
+  const fetchUserBookings = () => {
+    fetchMyBookings();
+  };
 
   useEffect(() => {
     if (!token || bookings.length === 0) return;
@@ -92,6 +114,8 @@ const Cars = () => {
         pickupDate,
         pickupTime,
         distance,
+        car: selectedCar,
+        serviceType
       });
 
       if (data.success) {
@@ -241,6 +265,74 @@ const Cars = () => {
                 </div>
               </div>
 
+              {/* Select Your Car */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">
+                  🚗 Choose Your Premium Ride
+                </label>
+                {cars.length === 0 ? (
+                  <p className="text-gray-400 text-xs italic">Loading available cabs...</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                    {cars.map((c) => (
+                      <div
+                        key={c._id}
+                        onClick={() => setSelectedCar(c._id)}
+                        className={`cursor-pointer border-2 rounded-2xl p-3 flex flex-col gap-2 transition-all duration-200 ${
+                          selectedCar === c._id
+                            ? "border-primary bg-blue-50/20 shadow-sm"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <img
+                          src={c.images?.[0] || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=400"}
+                          alt={c.name}
+                          className="w-full h-16 object-cover rounded-xl"
+                        />
+                        <div>
+                          <p className="font-bold text-gray-800 text-xs truncate">{c.name}</p>
+                          <p className="text-[9px] text-gray-500">{c.transmission} • {c.seatingCapacity} Seats</p>
+                          <p className="text-primary font-black text-xs mt-0.5">₹{c.pricePerDay}/day</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Service/Facility Choice */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">
+                  ✨ Booking Option (Facility)
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setServiceType("driver_assigned")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-0.5 ${
+                      serviceType === "driver_assigned"
+                        ? "border-primary bg-primary text-white shadow"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>🚗 With Driver</span>
+                    <span className="text-[8px] opacity-80">Our driver will drive</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceType("self_drive_pickup")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-0.5 ${
+                      serviceType === "self_drive_pickup"
+                        ? "border-primary bg-primary text-white shadow"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>🔑 Self-Drive Pickup</span>
+                    <span className="text-[8px] opacity-80">Pick up at Hub point</span>
+                  </button>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 disabled={bookingLoading}
@@ -346,6 +438,12 @@ const Cars = () => {
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
                             Pickup Date: {new Date(booking.pickupDate).toLocaleDateString()} | Time: {booking.pickupTime || "Anytime"}
+                          </p>
+                          <p className="text-xs text-gray-800 mt-1 font-bold">
+                            🚗 Chosen Car: <span className="text-primary">{booking.car?.name || "Premium Ride"}</span> ({booking.car?.model || "Legender"})
+                          </p>
+                          <p className="text-[11px] text-indigo-600 font-bold mt-0.5">
+                            Facility: {booking.serviceType === "self_drive_pickup" ? "🔑 Self-Drive Pickup (At Point/Hub)" : "🚗 Professional Driver Provided"}
                           </p>
                         </div>
                         <div className="text-right">

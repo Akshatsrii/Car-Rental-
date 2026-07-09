@@ -260,6 +260,15 @@ const MyBookings = () => {
                   </div>
                 </div>
 
+                <div className="flex gap-4 text-xs font-bold bg-gray-50/50 p-3 rounded-xl border border-dashed flex-wrap">
+                  <span className="text-gray-800">
+                    🚗 Chosen Car: <span className="text-primary">{booking.car?.name || "Premium Sedan"}</span> ({booking.car?.model || "Legender"})
+                  </span>
+                  <span className="text-indigo-600">
+                    Facility: {booking.serviceType === "self_drive_pickup" ? "🔑 Self-Drive (Pick up at Hub)" : "🚗 Driver Assigned"}
+                  </span>
+                </div>
+
                 <div className="flex gap-6 text-sm text-gray-500 font-semibold flex-wrap">
                   <span className="flex items-center gap-2">
                     <Calendar size={16} className="text-primary" />
@@ -307,6 +316,13 @@ const MyBookings = () => {
                       🔒 Driver assigned! Driver contact, vehicle number, and safety OTP will unlock automatically on the booking day ({new Date(booking.pickupDate).toLocaleDateString()}).
                     </div>
                   )
+                )}
+
+                {booking.status === "pending" && (
+                  <div className="bg-green-50 border border-green-200 p-4 rounded-2xl text-xs text-green-800 font-bold flex items-center gap-2">
+                    <span>🎉</span>
+                    <span>Order Placed Successfully! Awaiting Admin confirmation & driver assignment.</span>
+                  </div>
                 )}
               </div>
 

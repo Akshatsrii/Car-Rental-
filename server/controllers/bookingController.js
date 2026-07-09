@@ -12,7 +12,7 @@ import { checkBookingFraud } from "../services/fraudDetectionService.js";
 export const createBooking = async (req, res) => {
   try {
     const { _id } = req.user;
-    const { pickupAddress, dropAddress, pickupDate, pickupTime, distance } = req.body;
+    const { pickupAddress, dropAddress, pickupDate, pickupTime, distance, car, serviceType } = req.body;
 
     if (!pickupAddress || !dropAddress || !pickupDate || !distance) {
       return res.json({
@@ -38,12 +38,14 @@ export const createBooking = async (req, res) => {
 
     const booking = await Booking.create({
       user: _id,
+      car: car || null,
       pickupDate,
       pickupTime,
       pickupAddress,
       dropAddress,
       distance: Number(distance),
       price,
+      serviceType: serviceType || "driver_assigned",
       status: "pending"
     });
 
@@ -223,6 +225,7 @@ export const getUserBookings = async (req, res) => {
 
     const bookings = await Booking.find({ user: _id })
       .populate("driver", "name email image")
+      .populate("car")
       .sort({ createdAt: -1 });
 
     res.json({
@@ -269,7 +272,7 @@ export const getDriverBookings = async (req, res) => {
 export const getOwnerBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
-      .populate("user driver")
+      .populate("user driver car")
       .sort({ createdAt: -1 });
 
     res.json({
