@@ -3,146 +3,117 @@ import { assets } from "../assets/assets";
 
 const Footer = () => {
   return (
-    <footer className="relative border-t mt-20 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <footer className="relative border-t mt-12 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
       
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-400/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-400/5 rounded-full blur-3xl"></div>
       
-      {/* TOP FOOTER */}
-      <div className="relative z-10 max-w-full px-6 lg:px-16 xl:px-24 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+      {/* TOP FOOTER - COMPACT */}
+      <div className="relative z-10 max-w-full px-6 lg:px-16 xl:px-24 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
 
         {/* BRAND */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 group cursor-pointer">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 group cursor-pointer">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-md group-hover:blur-lg transition-all"></div>
-              <img src={assets.logo} alt="CarRental" className="h-8 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+              <img src={assets.logo} alt="CarRental" className="h-7 relative z-10 group-hover:scale-105 transition-transform duration-300" />
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm leading-7 font-medium">
-            Premium, real-time Cab & Ride booking service. Instant driver matching, safety OTP verifications, transparent wait/surge pricing configurations, and live GPS map tracking.
+          <p className="text-gray-500 text-xs leading-5 font-medium">
+            Premium, real-time Cab & Ride booking service. Instant driver matching, safety OTP verifications, and live GPS map tracking.
           </p>
 
-          <div className="flex gap-5">
-            <div className="group cursor-pointer">
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all"></div>
-                <img 
-                  src={assets.facebook_logo} 
-                  className="h-6 relative z-10 group-hover:scale-125 transition-transform duration-300" 
-                  alt="Facebook"
-                />
+          <div className="flex gap-4">
+            {/* Social Icons */}
+            {[
+              { img: assets.facebook_logo, bg: "bg-blue-500/10 hover:bg-blue-500/20" },
+              { img: assets.instagram_logo, bg: "bg-pink-500/10 hover:bg-pink-500/20" },
+              { img: assets.twitter_logo, bg: "bg-blue-400/10 hover:bg-blue-400/20" },
+              { img: assets.gmail_logo, bg: "bg-red-500/10 hover:bg-red-500/20" }
+            ].map((social, index) => (
+              <div key={index} className={`p-2 rounded-full cursor-pointer transition-all duration-250 hover:scale-110 ${social.bg}`}>
+                <img src={social.img} className="h-4 w-4" alt="Social" />
               </div>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="relative">
-                <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all"></div>
-                <img 
-                  src={assets.instagram_logo} 
-                  className="h-6 relative z-10 group-hover:scale-125 transition-transform duration-300" 
-                  alt="Instagram"
-                />
-              </div>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all"></div>
-                <img 
-                  src={assets.twitter_logo} 
-                  className="h-6 relative z-10 group-hover:scale-125 transition-transform duration-300" 
-                  alt="Twitter"
-                />
-              </div>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="relative">
-                <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all"></div>
-                <img 
-                  src={assets.gmail_logo} 
-                  className="h-6 relative z-10 group-hover:scale-125 transition-transform duration-300" 
-                  alt="Gmail"
-                />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
         {/* QUICK LINKS */}
-        <div className="space-y-5">
-          <h4 className="font-bold text-lg text-gray-900 relative inline-block">
+        <div className="space-y-3">
+          <h4 className="font-black text-sm text-gray-900 uppercase tracking-wider relative inline-block">
             Quick Links
-            <div className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
+            <div className="absolute -bottom-1 left-0 w-8 h-[3px] bg-primary rounded-full"></div>
           </h4>
-          <ul className="space-y-3 text-gray-600 text-sm font-medium">
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+          <ul className="space-y-2 text-gray-600 text-xs font-semibold">
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Home
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Book Ride
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Become a Driver
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               About Us
             </li>
           </ul>
         </div>
 
         {/* RESOURCES */}
-        <div className="space-y-5">
-          <h4 className="font-bold text-lg text-gray-900 relative inline-block">
+        <div className="space-y-3">
+          <h4 className="font-black text-sm text-gray-900 uppercase tracking-wider relative inline-block">
             Resources
-            <div className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
+            <div className="absolute -bottom-1 left-0 w-8 h-[3px] bg-primary rounded-full"></div>
           </h4>
-          <ul className="space-y-3 text-gray-600 text-sm font-medium">
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+          <ul className="space-y-2 text-gray-600 text-xs font-semibold">
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Help Center
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Terms of Service
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Privacy Policy
             </li>
-            <li className="cursor-pointer hover:text-primary hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group">
-              <span className="w-0 h-0.5 bg-primary group-hover:w-4 transition-all duration-300"></span>
+            <li className="cursor-pointer hover:text-primary transition-colors flex items-center gap-1.5 group">
+              <span className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-primary transition-colors"></span>
               Safety SOS
             </li>
           </ul>
         </div>
 
         {/* CONTACT */}
-        <div className="space-y-5">
-          <h4 className="font-bold text-lg text-gray-900 relative inline-block">
+        <div className="space-y-3">
+          <h4 className="font-black text-sm text-gray-900 uppercase tracking-wider relative inline-block">
             Contact Us
-            <div className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
+            <div className="absolute -bottom-1 left-0 w-8 h-[3px] bg-primary rounded-full"></div>
           </h4>
-          <ul className="space-y-4 text-gray-600 text-sm font-medium">
-            <li className="flex items-start gap-3 group hover:text-primary transition-colors">
-              <svg className="w-5 h-5 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <ul className="space-y-2.5 text-gray-600 text-xs font-semibold">
+            <li className="flex items-start gap-2 hover:text-primary transition-colors">
+              <svg className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>100 Feet Road, Indira Nagar<br/>Bengaluru, Karnataka 560038</span>
+              <span>Kota, Rajasthan, India</span>
             </li>
-            <li className="flex items-center gap-3 cursor-pointer group hover:text-primary transition-colors">
-              <svg className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li className="flex items-center gap-2 hover:text-primary transition-colors">
+              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              <span>+91 98765 43210</span>
+              <span>+91 70140 12345</span>
             </li>
-            <li className="flex items-center gap-3 cursor-pointer group hover:text-primary transition-colors">
-              <svg className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li className="flex items-center gap-2 hover:text-primary transition-colors">
+              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <span>support@carrentalcab.in</span>
@@ -152,25 +123,16 @@ const Footer = () => {
       </div>
 
       {/* BOTTOM BAR */}
-      <div className="relative z-10 border-t border-gray-200">
-        <div className="max-w-full px-6 lg:px-16 xl:px-24 py-6 flex flex-col md:flex-row items-center justify-between text-sm">
-          <p className="text-gray-600 font-medium">
-            © {new Date().getFullYear()} <span className="font-bold text-gray-900">CarRental Cabs</span>. All rights reserved.
+      <div className="relative z-10 border-t border-gray-200 bg-gray-50/50">
+        <div className="max-w-full px-6 lg:px-16 xl:px-24 py-4 flex flex-col sm:flex-row items-center justify-between text-xs">
+          <p className="text-gray-500 font-medium">
+            © {new Date().getFullYear()} <span className="font-bold text-gray-900">CarRental Cabs</span>. Kota, Rajasthan.
           </p>
 
-          <div className="flex gap-6 mt-3 md:mt-0">
-            <span className="cursor-pointer text-gray-600 hover:text-primary font-medium transition-colors relative group">
-              Privacy
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </span>
-            <span className="cursor-pointer text-gray-600 hover:text-primary font-medium transition-colors relative group">
-              Terms
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </span>
-            <span className="cursor-pointer text-gray-600 hover:text-primary font-medium transition-colors relative group">
-              Cookies
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </span>
+          <div className="flex gap-4 mt-2 sm:mt-0 font-semibold text-gray-500">
+            <span className="cursor-pointer hover:text-primary transition-colors">Privacy</span>
+            <span className="cursor-pointer hover:text-primary transition-colors">Terms</span>
+            <span className="cursor-pointer hover:text-primary transition-colors">Cookies</span>
           </div>
         </div>
       </div>
