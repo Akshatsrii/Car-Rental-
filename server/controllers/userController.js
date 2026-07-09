@@ -77,7 +77,7 @@ export const registerUser = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: `Server error: ${error.message}`
     });
   }
 };
@@ -124,7 +124,7 @@ export const loginUser = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: `Server error: ${error.message}`
     });
   }
 };
