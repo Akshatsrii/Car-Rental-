@@ -62,13 +62,9 @@ const Cars = () => {
   };
 
   useEffect(() => {
-    fetchMyBookings();
+    fetchUserBookings();
     fetchCars();
   }, [token]);
-
-  const fetchUserBookings = () => {
-    fetchMyBookings();
-  };
 
   useEffect(() => {
     if (!token || bookings.length === 0) return;
