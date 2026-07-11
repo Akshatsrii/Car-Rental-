@@ -118,7 +118,7 @@ const Login = () => {
             >
               <option value="customer">Passenger Partner</option>
               <option value="driver">Driver Partner</option>
-              <option value="admin">Administrator</option>
+              {state === "Login" && <option value="admin">Administrator</option>}
             </select>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-[10px]">
               ▼

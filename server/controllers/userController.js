@@ -29,12 +29,10 @@ export const registerUser = async (req, res) => {
 
     const targetRole = role || "customer";
     if (targetRole === "admin" || targetRole === "super_admin") {
-      if (secretCode !== process.env.ADMIN_SECRET_CODE) {
-        return res.json({
-          success: false,
-          message: "Invalid admin secret code"
-        });
-      }
+      return res.json({
+        success: false,
+        message: "Admin registration is disabled. Only the system configured Admin can log in."
+      });
     }
 
     const userExists = await User.findOne({ email });
@@ -87,6 +85,44 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password, secretCode } = req.body;
 
+    // Check if email matches ENV Admin email
+    if (process.env.ADMIN_EMAIL && email === process.env.ADMIN_EMAIL) {
+      if (password !== process.env.ADMIN_PASSWORD) {
+        return res.json({
+          success: false,
+          message: "Invalid credentials"
+        });
+      }
+
+      // Secret Code validation for Admin users
+      if (secretCode !== process.env.ADMIN_SECRET_CODE) {
+        return res.json({
+          success: false,
+          message: "Invalid admin secret code"
+        });
+      }
+      
+      // Find or create admin in DB
+      let user = await User.findOne({ email });
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user = await User.create({
+          name: "System Administrator",
+          email: email,
+          password: hashedPassword,
+          role: "admin",
+          phone: "9876543210"
+        });
+      }
+      
+      const token = generateToken(user._id);
+      return res.json({
+        success: true,
+        token
+      });
+    }
+
+    // Normal User Login
     const user = await User.findOne({ email });
     if (!user) {
       return res.json({
@@ -95,14 +131,12 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // Secret Code validation for Admin users
+    // If database user is admin but does not match process.env.ADMIN_EMAIL, reject!
     if (user.role === "admin" || user.role === "super_admin") {
-      if (secretCode !== process.env.ADMIN_SECRET_CODE) {
-        return res.json({
-          success: false,
-          message: "Invalid admin secret code"
-        });
-      }
+      return res.json({
+        success: false,
+        message: "Unauthorized admin access attempt"
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
