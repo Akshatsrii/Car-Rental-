@@ -3,11 +3,11 @@ import { assets } from '../assets/assets'
 
 const Banner = () => {
   return (
-    <div className='relative flex flex-col md:flex-row md:items-center items-center justify-between px-8 md:px-12 lg:px-16 py-12 md:py-8 bg-gradient-to-br from-[#0558FE] via-[#2D73FF] to-[#A9CFFF] max-w-7xl mx-4 md:mx-auto rounded-3xl overflow-hidden shadow-2xl my-20'>
+    <div className='relative flex flex-col md:flex-row md:items-center items-center justify-between px-8 md:px-12 lg:px-16 py-12 md:py-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black max-w-7xl mx-4 md:mx-auto rounded-3xl overflow-hidden shadow-2xl my-20'>
 
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-900/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
       
       {/* Decorative Dots Pattern */}
       <div className="absolute top-10 left-10 opacity-20">
