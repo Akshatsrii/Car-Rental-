@@ -50,24 +50,24 @@ const MyBookings = () => {
     printWindow.document.write(`
       <html>
         <head>
-          <title>CarRental Cabs - Invoice #${booking._id.slice(-6).toUpperCase()}</title>
+          <title>CarDekho - Invoice #${booking._id.slice(-6).toUpperCase()}</title>
           <style>
             body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 40px; }
             .invoice-box { max-width: 800px; margin: auto; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); padding: 30px; border-radius: 10px; }
-            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 20px; }
-            .logo { font-size: 24px; font-weight: bold; color: #2563eb; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #111827; padding-bottom: 20px; }
+            .logo { font-size: 24px; font-weight: bold; color: #111827; }
             .details { margin: 20px 0; font-size: 14px; line-height: 24px; }
             .table { width: 100%; border-collapse: collapse; margin-top: 30px; }
             .table th, .table td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
             .table th { background-color: #f9fafb; font-weight: bold; }
-            .total { text-align: right; margin-top: 30px; font-size: 18px; font-weight: bold; color: #2563eb; }
+            .total { text-align: right; margin-top: 30px; font-size: 18px; font-weight: bold; color: #111827; }
             .footer { margin-top: 50px; font-size: 12px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
           </style>
         </head>
         <body>
           <div class="invoice-box">
             <div class="header">
-              <div class="logo">CarRental Cabs</div>
+              <div class="logo">CarDekho</div>
               <div>
                 <strong>Invoice #${booking._id.slice(-6).toUpperCase()}</strong><br/>
                 Date: ${new Date(booking.pickupDate).toLocaleDateString()}<br/>
@@ -117,8 +117,8 @@ const MyBookings = () => {
               Total Amount Paid: ₹${booking.price}.00
             </div>
             <div class="footer">
-              Thank you for riding with CarRental Cabs! Safety and Comfort is our commitment.<br/>
-              © ${new Date().getFullYear()} CarRental Cabs Ltd. Bengaluru, India.
+              Thank you for riding with CarDekho! Safety and Comfort is our commitment.<br/>
+              © ${new Date().getFullYear()} CarDekho Ltd. Kota, Rajasthan.
             </div>
           </div>
           <script>

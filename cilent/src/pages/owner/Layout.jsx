@@ -19,7 +19,7 @@ const Layout = () => {
 
         {/* SMALL FOOTER */}
         <footer className="border-t border-borderColor text-center py-3 text-xs text-gray-500">
-          © {new Date().getFullYear()} CarRental Admin Panel
+          © {new Date().getFullYear()} CarDekho Admin Panel
         </footer>
       </div>
     </div>

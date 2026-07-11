@@ -215,7 +215,7 @@ const Login = () => {
         <div className="text-center mt-5 text-xs text-gray-500 font-semibold">
           {state === "Login" ? (
             <>
-              New to CarRental?{" "}
+              New to CarDekho?{" "}
               <button
                 type="button"
                 onClick={() => setState("Sign Up")}

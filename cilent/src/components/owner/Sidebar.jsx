@@ -97,7 +97,7 @@ const Sidebar = () => {
             className={`flex items-center gap-3 px-4 py-3 transition
               ${
                 link.path === location.pathname
-                  ? "bg-blue-50 text-blue-600 font-medium"
+                  ? "bg-gray-100 text-gray-900 font-medium"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
           >
