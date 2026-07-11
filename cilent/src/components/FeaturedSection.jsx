@@ -17,7 +17,7 @@ const FeaturedSection = () => {
         const mapped = data.cars.slice(0, 3).map((car) => ({
           ...car,
           image: car.images && car.images.length > 0 
-            ? `${import.meta.env.VITE_BASE_URL}/${car.images[0]}` 
+            ? (car.images[0].startsWith('http') ? car.images[0] : `${import.meta.env.VITE_BASE_URL}/${car.images[0]}`)
             : 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400',
           fuel_type: car.fuelType || 'Petrol',
           seating_capacity: car.seatingCapacity || 5,

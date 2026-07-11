@@ -282,7 +282,7 @@ const Cars = () => {
                       >
                         <div className="overflow-hidden rounded-xl">
                           <img
-                            src={c.images?.[0] || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=400"}
+                            src={c.images?.[0] ? (c.images[0].startsWith('http') ? c.images[0] : `${import.meta.env.VITE_BASE_URL}/${c.images[0]}`) : "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=400"}
                             alt={c.name}
                             className="w-full h-16 object-cover transition-transform duration-500 group-hover:scale-110"
                           />

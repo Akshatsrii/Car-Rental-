@@ -21,7 +21,7 @@ const ManageCars = () => {
           ...car,
           brand: car.name,
           image: car.images && car.images.length > 0 
-            ? `${import.meta.env.VITE_BASE_URL}/${car.images[0]}` 
+            ? (car.images[0].startsWith('http') ? car.images[0] : `${import.meta.env.VITE_BASE_URL}/${car.images[0]}`)
             : "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400"
         }));
         setCars(mappedCars);

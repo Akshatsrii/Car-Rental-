@@ -26,7 +26,7 @@ const CarDetails = () => {
         setCar({
           ...c,
           image: c.images && c.images.length > 0 
-            ? `${import.meta.env.VITE_BASE_URL}/${c.images[0]}` 
+            ? (c.images[0].startsWith('http') ? c.images[0] : `${import.meta.env.VITE_BASE_URL}/${c.images[0]}`)
             : "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400",
           fuel_type: c.fuelType || "Petrol",
           seating_capacity: c.seatingCapacity || 5,
