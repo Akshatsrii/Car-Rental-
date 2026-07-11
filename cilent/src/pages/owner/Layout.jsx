@@ -13,7 +13,7 @@ const Layout = () => {
         <NavbarOwner />
 
         {/* PAGE CONTENT */}
-        <div className="flex-1">
+        <div className="flex-1 bg-gray-50 p-6 md:p-10 min-w-0">
           <Outlet />
         </div>
 

@@ -9,10 +9,31 @@ const CarDetails = () => {
   const { axios, token, setShowLogin } = useAppContext();
 
   const [car, setCar] = useState(null);
-  const [pickupDate, setPickupDate] = useState("");
-  const [returnDate, setReturnDate] = useState("");
+  // Get a future date 3 days from now
+  const getFutureDate = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split("T")[0];
+  };
+
+  const [pickupAddress, setPickupAddress] = useState("Kunadi, Kota, Rajasthan");
+  const [dropAddress, setDropAddress] = useState("Kota Junction Railway Station");
+  const [pickupDate, setPickupDate] = useState(getFutureDate());
+  const [pickupTime, setPickupTime] = useState("10:00");
+  const [distance, setDistance] = useState(15);
+  const [serviceType, setServiceType] = useState("driver_assigned");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
+
+  // Pricing calculations
+  const baseFare = 50;
+  const perKmRate = 12;
+  const gstRate = 5;
+  const distanceFare = distance * perKmRate;
+  const subTotal = baseFare + distanceFare;
+  const gst = Math.round(subTotal * (gstRate / 100));
+  const estimatedTotal = subTotal + gst;
 
   const today = new Date().toISOString().split("T")[0];
   const currency = import.meta.env.VITE_CURRENCY || "$";
@@ -54,17 +75,25 @@ const CarDetails = () => {
       setShowLogin(true);
       return;
     }
+    setShowPaymentModal(true);
+  };
 
+  const confirmPaymentAndBook = async () => {
     try {
       setBookingLoading(true);
       const { data } = await axios.post("/api/booking/create", {
-        car: id,
+        pickupAddress,
+        dropAddress,
         pickupDate,
-        returnDate,
+        pickupTime,
+        distance,
+        car: id,
+        serviceType
       });
 
       if (data.success) {
-        toast.success("Car booked successfully!");
+        toast.success("Advance Payment Successful! Ride requested successfully.");
+        setShowPaymentModal(false);
         navigate("/mybookings");
       } else {
         toast.error(data.message || "Failed to book car");
@@ -258,52 +287,172 @@ const CarDetails = () => {
               </div>
             </div>
 
-            {/* Date Inputs */}
-            <div className="space-y-6 mb-6">
+            {!token ? (
+              <div className="text-center space-y-5 py-6">
+                <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+                  🔒
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Authentication Required</h3>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                    Please login or create an account with CarDekho to check distance fares, pay advance booking fees, and dispatch rides.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowLogin(true)}
+                  className="w-full py-4 bg-black hover:bg-gray-900 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 text-xs uppercase tracking-wider"
+                >
+                  🔑 Sign In / Register Now
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Booking Inputs */}
+                <div className="space-y-4 mb-6">
               
-              {/* Pickup Date */}
+              {/* Pickup Address */}
               <div>
-                <label htmlFor="pickup" className="block text-sm font-bold text-gray-700 mb-3">
-                  Pickup Date
-                </label>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Pickup Address</label>
                 <input
-                  type="date"
-                  id="pickup"
-                  value={pickupDate}
-                  onChange={(e) => {
-                    setPickupDate(e.target.value);
-                    setReturnDate("");
-                  }}
-                  min={today}
+                  type="text"
+                  placeholder="e.g. Kunadi, Kota, Rajasthan"
+                  value={pickupAddress}
+                  onChange={(e) => setPickupAddress(e.target.value)}
                   required
-                  className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-gray-700 font-medium"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs font-medium"
                 />
               </div>
 
-              {/* Return Date */}
+              {/* Drop Address */}
               <div>
-                <label htmlFor="return" className="block text-sm font-bold text-gray-700 mb-3">
-                  Return Date
-                </label>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Drop Address</label>
                 <input
-                  type="date"
-                  id="return"
-                  value={returnDate}
-                  onChange={(e) => setReturnDate(e.target.value)}
-                  min={pickupDate || today}
+                  type="text"
+                  placeholder="e.g. Kota Junction Railway Station"
+                  value={dropAddress}
+                  onChange={(e) => setDropAddress(e.target.value)}
                   required
-                  className="w-full px-4 py-3.5 border-2 border-gray-300 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-gray-700 font-medium"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs font-medium"
                 />
               </div>
+
+              {/* Date and Time Slot */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Pickup Date</label>
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(e) => setPickupDate(e.target.value)}
+                    min={today}
+                    required
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:border-primary outline-none text-xs font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Time Slot</label>
+                  <input
+                    type="time"
+                    value={pickupTime}
+                    onChange={(e) => setPickupTime(e.target.value)}
+                    required
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:border-primary outline-none text-xs font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Distance Slider */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 flex justify-between uppercase">
+                  <span>Estimated Distance</span>
+                  <span className="text-primary font-black">{distance} KM</span>
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={distance}
+                  onChange={(e) => setDistance(Number(e.target.value))}
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+              </div>
+
+              {/* Facility Option */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 uppercase">
+                  ✨ Booking Option (Facility)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setServiceType("driver_assigned")}
+                    className={`py-2 px-1 rounded-xl border text-[10px] font-bold transition flex flex-col items-center justify-center gap-0.5 ${
+                      serviceType === "driver_assigned"
+                        ? "border-primary bg-primary text-white shadow"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>🚗 With Driver</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceType("self_drive_pickup")}
+                    className={`py-2 px-1 rounded-xl border text-[10px] font-bold transition flex flex-col items-center justify-center gap-0.5 ${
+                      serviceType === "self_drive_pickup"
+                        ? "border-primary bg-primary text-white shadow"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>🔑 Self-Drive</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Fare Breakdown Card */}
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-2 text-xs">
+                <div className="flex justify-between items-center border-b pb-1.5 mb-1.5">
+                  <h3 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">Fare Breakdown</h3>
+                  <span className="bg-primary/10 text-primary text-[8px] font-black px-1.5 py-0.5 rounded-full">Rate: ₹12/KM</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Base Fare</span>
+                  <span>₹{baseFare}.00</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Distance Charges ({distance} KM)</span>
+                  <span>₹{distanceFare}.00</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>GST (5%)</span>
+                  <span>₹{gst}.00</span>
+                </div>
+                <div className="flex justify-between font-black text-gray-900 text-sm border-t pt-2">
+                  <span>Estimated Total</span>
+                  <span className="text-primary">₹{estimatedTotal}.00</span>
+                </div>
+                <div className="flex justify-between text-gray-700 font-bold border-t border-dashed pt-2">
+                  <span>50% Advance Booking Fee</span>
+                  <span>₹{Math.round(estimatedTotal * 0.5)}.00</span>
+                </div>
+                <div className="flex justify-between text-gray-500 font-semibold text-[10px]">
+                  <span>Remaining to Pay Driver</span>
+                  <span>₹{Math.round(estimatedTotal * 0.5)}.00</span>
+                </div>
+                <div className="bg-red-50 text-red-700 text-[9px] p-2 rounded-xl border border-red-100 font-black mt-2 leading-relaxed">
+                  ⚠️ Note: The 50% advance payment is strictly NON-REFUNDABLE in case of cancellations.
+                </div>
+              </div>
+
             </div>
 
             {/* Book Button */}
             <button
               type="submit"
               disabled={bookingLoading}
-              className="w-full bg-gradient-to-r from-primary to-primary-dull hover:from-primary-dull hover:to-primary text-white font-bold text-lg py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-primary hover:bg-primary-dull text-white font-bold text-sm rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
             >
-              {bookingLoading ? "Booking Car..." : "Book Now"}
+              {bookingLoading ? "Processing..." : `💳 Pay 50% Advance (₹${Math.round(estimatedTotal * 0.5)})`}
             </button>
 
             {/* Info Text */}
@@ -332,9 +481,102 @@ const CarDetails = () => {
                 <span className="font-medium">24/7 roadside assistance</span>
               </div>
             </div>
+            </>
+            )}
           </form>
         </div>
       </div>
+      
+      {/* 💳 SECURE ADVANCE PAYMENT GATEWAY MODAL */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 max-w-sm w-full relative overflow-hidden animate-scaleUp">
+            
+            {/* Top accent bar */}
+            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-gray-900 via-gray-800 to-black"></div>
+
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mt-2 space-y-4">
+              {/* Payment Icon */}
+              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-xl mx-auto shadow-sm">
+                💳
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-gray-900">Secure Advance Checkout</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">CarDekho Payments Gateway</p>
+              </div>
+
+              {/* Amount to pay */}
+              <div className="bg-gray-50 border border-dashed p-4 rounded-2xl">
+                <span className="text-xs text-gray-400 font-bold uppercase block">50% Advance Booking Fee</span>
+                <span className="text-3xl font-black text-gray-900 block mt-1">₹{Math.round(estimatedTotal * 0.5)}.00</span>
+                <span className="text-[9px] text-gray-500 font-semibold block mt-1 border-t pt-1 border-gray-200">
+                  Remaining balance of ₹{Math.round(estimatedTotal * 0.5)}.00 to be paid directly to the driver partner.
+                </span>
+              </div>
+
+              {/* Non-refundable Disclaimer */}
+              <div className="bg-red-50 text-red-700 text-[10px] p-3 rounded-2xl border border-red-100 font-black leading-normal text-left">
+                ⚠️ Refund Policy: This booking advance fee is strictly NON-REFUNDABLE once paid.
+              </div>
+
+              {/* Simulated Card Form inputs */}
+              <div className="space-y-3 text-left">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Dummy Card Number</label>
+                  <input
+                    type="text"
+                    placeholder="4111 2222 3333 4444"
+                    disabled
+                    className="w-full border p-2.5 rounded-xl outline-none focus:border-primary text-xs font-semibold bg-gray-50 text-gray-400"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-left">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Expiry</label>
+                    <input
+                      type="text"
+                      placeholder="12/28"
+                      disabled
+                      className="w-full border p-2.5 rounded-xl outline-none focus:border-primary text-xs font-semibold text-center bg-gray-50 text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">CVV</label>
+                    <input
+                      type="password"
+                      placeholder="***"
+                      disabled
+                      className="w-full border p-2.5 rounded-xl outline-none focus:border-primary text-xs font-semibold text-center bg-gray-50 text-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Confirm Pay Button */}
+              <button
+                onClick={confirmPaymentAndBook}
+                disabled={bookingLoading}
+                className="w-full py-3.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-xs shadow-lg hover:shadow-xl transition transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {bookingLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <span>🔒 Complete Payment (₹{Math.round(estimatedTotal * 0.5)})</span>
+                )}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

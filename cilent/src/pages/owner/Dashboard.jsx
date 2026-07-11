@@ -62,10 +62,10 @@ const Dashboard = () => {
       });
 
       if (data.success) {
-        toast.success("Driver assigned successfully!");
+        toast.success("Booking Confirmed & Dispatched successfully!");
         fetchDashboardStats();
       } else {
-        toast.error(data.message || "Failed to assign driver");
+        toast.error(data.message || "Failed to confirm booking");
       }
     } catch (error) {
       toast.error("Error assigning driver");
@@ -145,73 +145,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Visual Analytics Graphs */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Weekly Revenue Graph */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border">
-          <h3 className="text-xl font-black text-gray-900 mb-2">Weekly Revenue Graph</h3>
-          <p className="text-xs text-gray-400 mb-6">Total earnings performance over the last 7 days.</p>
-          
-          <div className="h-48 flex items-end justify-between gap-4 pt-4 border-b border-gray-100 pb-2">
-            {[
-              { day: "Mon", val: 5000, height: "35%" },
-              { day: "Tue", val: 7500, height: "50%" },
-              { day: "Wed", val: 6200, height: "42%" },
-              { day: "Thu", val: 8900, height: "60%" },
-              { day: "Fri", val: 12000, height: "80%" },
-              { day: "Sat", val: 15500, height: "100%" },
-              { day: "Sun", val: 10200, height: "68%" },
-            ].map((item, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group relative cursor-pointer">
-                {/* Tooltip */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none z-10">
-                  ₹{item.val}
-                </div>
-                {/* Bar */}
-                <div 
-                  className="w-full bg-gradient-to-t from-gray-900 to-gray-600 rounded-t-lg transition-all duration-500 hover:brightness-110" 
-                  style={{ height: item.height }}
-                ></div>
-                {/* Label */}
-                <span className="text-[10px] text-gray-400 font-bold uppercase">{item.day}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Weekly Bookings Volume Graph */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border">
-          <h3 className="text-xl font-black text-gray-900 mb-2">Booking Dispatch Graph</h3>
-          <p className="text-xs text-gray-400 mb-6">Daily counts of booking dispatches processed.</p>
-          
-          <div className="h-48 flex items-end justify-between gap-4 pt-4 border-b border-gray-100 pb-2">
-            {[
-              { day: "Mon", val: 8, height: "25%" },
-              { day: "Tue", val: 12, height: "40%" },
-              { day: "Wed", val: 15, height: "50%" },
-              { day: "Thu", val: 22, height: "75%" },
-              { day: "Fri", val: 30, height: "100%" },
-              { day: "Sat", val: 28, height: "92%" },
-              { day: "Sun", val: 18, height: "60%" },
-            ].map((item, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group relative cursor-pointer">
-                {/* Tooltip */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none z-10">
-                  {item.val} Trips
-                </div>
-                {/* Bar */}
-                <div 
-                  className="w-full bg-gradient-to-t from-gray-700 to-gray-400 rounded-t-lg transition-all duration-500 hover:brightness-110" 
-                  style={{ height: item.height }}
-                ></div>
-                {/* Label */}
-                <span className="text-[10px] text-gray-400 font-bold uppercase">{item.day}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main Workspace: Pricing Editor + Drivers Assignment */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT SECTION: PENDING BOOKINGS & DRIVER ASSIGNMENTS */}
@@ -269,7 +202,7 @@ const Dashboard = () => {
                               onClick={() => handleAssignDriver(booking._id)}
                               className="px-3 py-2 bg-primary hover:bg-primary-dull text-white text-xs font-bold rounded-xl transition"
                             >
-                              Assign
+                              ✔️ Confirm & Book
                             </button>
                           </div>
                         </td>
@@ -322,38 +255,6 @@ const Dashboard = () => {
             >
               Update Pricing Engine
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* REAL-TIME OPERATIONS CONTROL CENTER */}
-      <div className="bg-gradient-to-r from-gray-900 to-black text-white rounded-3xl p-6 shadow-xl border border-gray-800">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-          <div>
-            <span className="bg-white/10 text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">📡 Fleet Operations Command</span>
-            <h3 className="text-xl font-black mt-2">Real-time Hub Status & Vehicle Dispatch Logs</h3>
-          </div>
-          <div className="text-right">
-            <span className="text-[10px] text-gray-400 font-semibold block uppercase">System Latency</span>
-            <span className="text-gray-300 font-bold text-sm">Active (2ms)</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-white/10">
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">📍 Active Area Focus</span>
-            <p className="text-lg font-black mt-1">Kota Junction ⇆ Rajasthan Hub</p>
-            <p className="text-xs text-gray-400 mt-1">Peak customer traffic routed. Driver assignments active.</p>
-          </div>
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">⚡ Dispatch Allocation Ratio</span>
-            <p className="text-lg font-black mt-1">98.2% Allocation Rate</p>
-            <p className="text-xs text-gray-400 mt-1">Drivers successfully matched via system security OTP codes.</p>
-          </div>
-          <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">🔑 Fleet Category Distribution</span>
-            <p className="text-lg font-black mt-1">7 Premium Vehicles Configured</p>
-            <p className="text-xs text-gray-400 mt-1">SUVs, Sedans, and Luxury MUVs currently tracked inside database.</p>
           </div>
         </div>
       </div>

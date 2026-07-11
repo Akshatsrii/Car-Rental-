@@ -90,7 +90,7 @@ const ManageCars = () => {
   };
 
   return (
-    <div className="ml-0 md:ml-64 lg:ml-72 px-4 pt-10 md:px-10 min-h-screen bg-gray-50">
+    <div className="space-y-6">
       <div className="max-w-7xl">
         {/* TITLE */}
         <Title

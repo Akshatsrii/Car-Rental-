@@ -14,7 +14,7 @@ const FeaturedSection = () => {
     try {
       const { data } = await axios.get('/api/user/cars')
       if (data.success && data.cars && data.cars.length > 0) {
-        const mapped = data.cars.slice(0, 3).map((car) => ({
+        const mapped = data.cars.map((car) => ({
           ...car,
           image: car.images && car.images.length > 0 
             ? (car.images[0].startsWith('http') ? car.images[0] : `${import.meta.env.VITE_BASE_URL}/${car.images[0]}`)
