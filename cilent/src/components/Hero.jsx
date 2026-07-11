@@ -16,11 +16,11 @@ const Hero = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col items-center justify-center gap-12 md:gap-20 bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100 px-4 py-12 overflow-hidden">
+    <div className="min-h-screen relative flex flex-col items-center justify-center gap-12 md:gap-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 px-4 py-12 overflow-hidden">
       
       {/* Decorative Background Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/5 rounded-full blur-3xl"></div>
       
       {/* Heading Section */}
       <div className="relative z-10 text-center space-y-4">
@@ -143,7 +143,7 @@ const Hero = () => {
           <img
             src={assets.main_car}
             alt="car"
-            className="max-h-74 relative z-10 drop-shadow-[0px_20px_50px_rgba(0,0,0,0.25)] hover:drop-shadow-[0px_30px_60px_rgba(0,0,0,0.3)] transform hover:scale-110 transition-all duration-700 animate-[float_6s_ease-in-out_infinite]"
+            className="max-h-74 relative z-10 grayscale brightness-105 contrast-110 drop-shadow-[0px_20px_50px_rgba(0,0,0,0.25)] hover:drop-shadow-[0px_30px_60px_rgba(0,0,0,0.3)] transform hover:scale-110 transition-all duration-700 animate-[float_6s_ease-in-out_infinite]"
           />
           
           {/* Reflection effect */}

@@ -210,10 +210,10 @@ export const updateUserImage = async (req, res) => {
 // ================= ADD CAR =================
 export const addCar = async (req, res) => {
   try {
-    if (req.user.role !== "owner") {
+    if (req.user.role !== "owner" && req.user.role !== "admin" && req.user.role !== "super_admin") {
       return res.json({
         success: false,
-        message: "Only owners can add cars",
+        message: "Only administrators or owners can add cars",
       });
     }
 

@@ -274,17 +274,19 @@ const Cars = () => {
                       <div
                         key={c._id}
                         onClick={() => setSelectedCar(c._id)}
-                        className={`cursor-pointer border-2 rounded-2xl p-3 flex flex-col gap-2 transition-all duration-200 ${
+                        className={`group cursor-pointer border-2 rounded-2xl p-3 flex flex-col gap-2 transition-all duration-300 transform active:scale-95 ${
                           selectedCar === c._id
-                            ? "border-primary bg-blue-50/20 shadow-sm"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "border-primary bg-gray-50 shadow-md scale-[1.02] ring-2 ring-primary/20"
+                            : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm hover:scale-[1.01]"
                         }`}
                       >
-                        <img
-                          src={c.images?.[0] || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=400"}
-                          alt={c.name}
-                          className="w-full h-16 object-cover rounded-xl"
-                        />
+                        <div className="overflow-hidden rounded-xl">
+                          <img
+                            src={c.images?.[0] || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=400"}
+                            alt={c.name}
+                            className="w-full h-16 object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        </div>
                         <div>
                           <p className="font-bold text-gray-800 text-xs truncate">{c.name}</p>
                           <p className="text-[9px] text-gray-500">{c.transmission} • {c.seatingCapacity} Seats</p>
