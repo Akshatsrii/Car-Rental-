@@ -169,7 +169,7 @@ const Dashboard = () => {
                 </div>
                 {/* Bar */}
                 <div 
-                  className="w-full bg-gradient-to-t from-primary to-blue-400 rounded-t-lg transition-all duration-500 hover:brightness-110" 
+                  className="w-full bg-gradient-to-t from-gray-900 to-gray-600 rounded-t-lg transition-all duration-500 hover:brightness-110" 
                   style={{ height: item.height }}
                 ></div>
                 {/* Label */}
@@ -201,7 +201,7 @@ const Dashboard = () => {
                 </div>
                 {/* Bar */}
                 <div 
-                  className="w-full bg-gradient-to-t from-green-500 to-emerald-400 rounded-t-lg transition-all duration-500 hover:brightness-110" 
+                  className="w-full bg-gradient-to-t from-gray-700 to-gray-400 rounded-t-lg transition-all duration-500 hover:brightness-110" 
                   style={{ height: item.height }}
                 ></div>
                 {/* Label */}
@@ -326,34 +326,34 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* AI PREDICTIVE ANALYTICS SECTION */}
-      <div className="bg-gradient-to-r from-gray-900 via-indigo-950 to-gray-900 text-white rounded-3xl p-6 shadow-xl border border-indigo-500/20">
+      {/* REAL-TIME OPERATIONS CONTROL CENTER */}
+      <div className="bg-gradient-to-r from-gray-900 to-black text-white rounded-3xl p-6 shadow-xl border border-gray-800">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
           <div>
-            <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/35 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">🔮 AI Demand Prediction Engine</span>
-            <h3 className="text-xl font-black mt-2">Next 24h Demand Forecasting Insights</h3>
+            <span className="bg-white/10 text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">📡 Fleet Operations Command</span>
+            <h3 className="text-xl font-black mt-2">Real-time Hub Status & Vehicle Dispatch Logs</h3>
           </div>
           <div className="text-right">
-            <span className="text-[10px] text-gray-400 font-semibold block uppercase">AI Model Accuracy</span>
-            <span className="text-green-400 font-bold text-sm">94.8% Active</span>
+            <span className="text-[10px] text-gray-400 font-semibold block uppercase">System Latency</span>
+            <span className="text-gray-300 font-bold text-sm">Active (2ms)</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-white/10">
           <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider">🔥 Predicted Peak Hours</span>
-            <p className="text-lg font-black mt-1">5:00 PM – 8:00 PM</p>
-            <p className="text-xs text-gray-400 mt-1">Expected 1.8x ride demand surge due to local office hours.</p>
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">📍 Active Area Focus</span>
+            <p className="text-lg font-black mt-1">Kota Junction ⇆ Rajasthan Hub</p>
+            <p className="text-xs text-gray-400 mt-1">Peak customer traffic routed. Driver assignments active.</p>
           </div>
           <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider">📍 Top Target Route</span>
-            <p className="text-lg font-black mt-1">Airport Road ⇆ Tech Park</p>
-            <p className="text-xs text-gray-400 mt-1">High dispatch volume expected. Recommended driver positioning.</p>
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">⚡ Dispatch Allocation Ratio</span>
+            <p className="text-lg font-black mt-1">98.2% Allocation Rate</p>
+            <p className="text-xs text-gray-400 mt-1">Drivers successfully matched via system security OTP codes.</p>
           </div>
           <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider">🚗 Supply Recommendation</span>
-            <p className="text-lg font-black mt-1">Onboard +3 Drivers</p>
-            <p className="text-xs text-gray-400 mt-1">Predicted shortage of available Sedans in the South sector.</p>
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">🔑 Fleet Category Distribution</span>
+            <p className="text-lg font-black mt-1">7 Premium Vehicles Configured</p>
+            <p className="text-xs text-gray-400 mt-1">SUVs, Sedans, and Luxury MUVs currently tracked inside database.</p>
           </div>
         </div>
       </div>
