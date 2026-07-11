@@ -268,7 +268,7 @@ const Navbar = () => {
           ) : (
             <button
               onClick={() => setShowLogin(true)}
-              className="px-7 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+              className="px-7 py-2.5 bg-black hover:bg-gray-900 text-white rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
             >
               Login
             </button>
@@ -371,7 +371,7 @@ const Navbar = () => {
                     setShowLogin(true);
                     setOpen(false);
                   }}
-                  className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="mt-4 w-full bg-black text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Login
                 </button>
