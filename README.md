@@ -1,4 +1,4 @@
-# 🚗 CarRental Cabs — Premium MERN Cab Booking Platform
+# 🚗 CarDekho Cabs — Premium MERN Cab Booking Platform
 
 <div align="center">
 
@@ -47,7 +47,7 @@
 
 ## 🧭 Overview
 
-CarRental Cabs is a full-stack MERN (MongoDB, Express, React, Node.js) application built to simulate a real-world ride-hailing ecosystem — think Ola/Uber-style booking, dispatch, and live tracking — wrapped in a bilingual AI assistant, real-time Socket.IO event pipeline, and a data-driven admin control board.
+CarDekho Cabs is a full-stack MERN (MongoDB, Express, React, Node.js) application built to simulate a real-world ride-hailing ecosystem — think Ola/Uber-style booking, dispatch, and live tracking — wrapped in a bilingual AI assistant, real-time Socket.IO event pipeline, and a data-driven admin control board.
 
 It's designed to be a strong **portfolio-grade** and **learning-grade** project: the codebase demonstrates authentication & RBAC, real-time systems, third-party AI integration, Dockerized deployment, and enterprise logging/audit practices — all in one repository.
 
